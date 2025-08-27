@@ -1,4 +1,4 @@
-# PRD – Palette (Creative Workflow Tool)
+# Product Requirements Doc for Palette, a creative workflow tool
 
 ## Product Idea Summary  
 Palette is a creative workflow web app designed for creatives who need inspiration across multiple mediums. Instead of juggling Spotify, TMDb, and Pinterest-style moodboards separately, Palette curates and organizes playlists, films, designers, and visual inspiration into a single workflow.  
@@ -13,8 +13,8 @@ Users can:
 ## Target Users  
 - Creative directors (campaign planning)    
 - Brand strategists (vibe boards for pitches)    
-- Production & set designers (cross-modal references)    
-- Gen Z creatives & students (personal aesthetic exploration)    
+- Production, set, and costume designers
+- Gen Z (personal aesthetic exploration)    
 - Content creators (quick inspiration across music, film, fashion)  
 
 ## Context / Motivation  
