@@ -1,4 +1,4 @@
-# Product Requirements Doc for Palette, a creative workflow tool
+# Product Requirements Document
 
 ## Product Idea Summary  
 Palette is a creative workflow web app designed for creatives who need inspiration across multiple mediums. Instead of juggling Spotify, TMDb, and Pinterest-style moodboards separately, Palette curates and organizes playlists, films, designers, and visual inspiration into a single workflow.  
