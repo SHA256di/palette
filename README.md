@@ -1,4 +1,4 @@
-# palette: creative workflow curator 
+# palette 🎨 : a creative workflow curator
 palette is a creative workflow web app that helps users materialize a vibe or aesthetic into a curated board in seconds. Instead of spending hours manually pulling references across music, film, and moodboard platforms, users can enter a few favorites, and palette generates a shareable aesthetic board with playlists, films, fashion brands, moodboard images, and a rationale tying them together.
 
 The app works in two modes:
