@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { generatePlaylistForVibe, searchTracks } from '@/lib/spotify'
+import { generatePlaylistForVibe, searchTracks } from '../../../lib/spotify'
 
 export async function POST(request: NextRequest) {
   try {

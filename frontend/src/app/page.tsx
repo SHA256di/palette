@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import SpotifyPlaylist from '@/components/SpotifyPlaylist'
+import SpotifyPlaylist from '../components/SpotifyPlaylist'
 
 export default function Home() {
   const [vibe, setVibe] = useState('')
