@@ -1,116 +1,115 @@
-# Product Requirements Document
+# PRD – Palette (Creative Workflow Copilot)
 
-## Product Idea Summary  
-Palette is a creative workflow web app designed for creatives who need inspiration across multiple mediums. Instead of juggling Spotify, TMDb, and Pinterest-style moodboards separately, Palette curates and organizes playlists, films, designers, and visual inspiration into a single workflow.  
+## Product Idea Summary
+Palette is an AI-powered creative workflow web app that generates **ready-to-use inspo packs** for campaigns, posts, or personal projects. Instead of juggling Spotify, TMDb/IMDb, Unsplash, and Pinterest separately, Palette centralizes playlists, visuals, cultural references, hashtags, and post ideas into a **sharable one-page brief**.  
 
-Users can:  
-- Input their favorite songs, films, or designers → Palette builds a cross-modal board.    
-- Or chat with an AI creative assistant → Palette assembles a board aligned with their aesthetic or project theme.    
-- Export or save curated boards for reuse in campaigns, set design, or creative briefs.    
-- (Optional, stretch) AI-generated visuals (Stable Diffusion + LoRA adapters) to complement moodboards.  
+Users can:
+- Input a vibe or aesthetic (*“pink pilates princess”*, *“indie sleaze”*) and optional campaign goal.  
+- Choose audience (Gen Z, Millennials, or both) and platform (LinkedIn, Instagram, Facebook, TikTok).  
+- Select output type: Campaign Mock-up, Shoot Ideas, or Set Design Brief.  
+- Instantly receive a curated inspo pack with playlist, visuals, film refs, hashtags/keywords, post hooks, and rationale.  
+- Export as a shareable link or downloadable PDF/slidedeck.  
 
-
-## Target Users  
-- Creative directors (campaign planning)    
-- Brand strategists (vibe boards for pitches)    
-- Production, set, and costume designers
-- Gen Z (personal aesthetic exploration)    
-- Content creators (quick inspiration across music, film, fashion)  
-
-## Context / Motivation  
-Creative work often requires **cross-modal inspiration** (matching music to visuals, or fashion to film aesthetics). Current workflows are fragmented across multiple platforms.  
-
-Palette reduces friction by:    
-- Automating discovery    
-- Centralizing music, film, and fashion curation    
-- Acting as a creative co-pilot for brainstorming and mood-setting  
-
-## Goals  
-- Deliver a seamless creative workflow for inspiration and ideation    
-- Provide both structured workflows (form-based input) and exploratory workflows (AI assistant)    
-- Support practical use cases (project prep, campaign design) and personal exploration    
-- Showcase AI as a collaborative creative partner 
-
-## Use Cases  
-- A brand strategist preps a pitch deck: Palette generates moodboards + playlists matching the campaign theme    
-- A set designer references Palette boards to align costume, set, and soundtrack    
-- A student creative explores aesthetics: “dark academia” → films, music, designers, visuals    
-- A content creator finds new ideas by chatting with the AI assistant: *“make me a coquette-inspired mood board”*  
+## Target Users
+- **Brand strategists & marketers** → vibe packs for campaign decks & ad content.  
+- **Creative directors & designers** → shoot/set ideas aligned with cultural aesthetics.  
+- **Content creators** → quick inspo for TikTok/Instagram posts.  
+- **Gen Z creatives & students** → personal aesthetic exploration for projects.  
+- **B2B marketers** → campaigns that feel culturally fluent to younger audiences.  
 
 
-## Features (MVP Scope)  
-- Spotify integration → generate playlists from vibes    
-- TMDb API → curated film recommendations (with IMDb cross-reference)    
-- Unsplash + Tumblr → fashion and moodboard images    
-- Two workflows:    
-  - Form-based (structured input)    
-  - AI assistant (chat-based brainstorming)    
-- Exportable boards → PDFs, share links, or creative briefs    
-- AI rationale for each board: “why these elements fit your vibe”    
-- Eval panel → similarity metrics, vibe alignment, tag coverage    
-- (Optional, stretch) Stable Diffusion visuals to generate unique moodboard images  
+## Context / Motivation
+Creative workflows today are **fragmented**: users bounce between ChatGPT (text), Pinterest (visuals), Spotify (music), and Canva (execution).  
+- ChatGPT can list ideas, but it doesn’t output *real assets*.  
+- Canva gives templates, but not Gen Z-native vibes.  
 
-## Stretch Features (LoRA)  
-- LoRA-based **aesthetic adapters**: fine-tuned lightweight models trained on curated datasets (e.g., *dark academia*, *Y2K fashion*, *film noir posters*, *pink pilates princess*)    
-- Designer & brand LoRAs: small datasets of fashion brands or unique eras of fashion (e.g., Rick Owens, John Galliano for Dior, Antwerp Six, Prada, Raf Simons for Jil Sander) to reflect niche style in generated visuals    
-- Film poster LoRAs: finetune on poster datasets to produce cinematic styles    
-- Eval integration: compare baseline vs. LoRA outputs with similarity and vibe alignment scores  
+Palette reduces friction by:  
+- Automating **cross-modal discovery** (music, film, visuals, text).  
+- Centralizing outputs into **workflow-ready briefs**.  
+- Acting as a **cultural translator**, making campaigns vibe-native for Gen Z & Millennials.  
 
 
-## Technical Stack  
-**Frontend**    
-- Next.js (App Router) + Tailwind CSS  
+## Goals
+- Deliver a **seamless creative workflow** for campaigns & posts.  
+- Provide personalization by **purpose, platform, and audience**.  
+- Support both **strategic use cases** (campaign decks, ad mockups) and **creative exploration**.  
+- Showcase AI as a **collaborative co-pilot**, not just a recommender.  
 
-**Backend / API**    
-- Next.js API routes (serverless) or FastAPI microservice for embeddings  
 
-**Auth & Integrations (MVP)**    
-- Spotify API (music)    
-- TMDb API (films)    
-- Unsplash API (moodboard images)    
-- Tumblr API (aesthetic/community-sourced images)  
+## Use Cases
+- A **brand strategist** inputs “coastal grandmother,” selects *LinkedIn campaign*, and gets a brief with posts + hashtags for professional wellness branding.  
+- A **content creator** selects “indie sleaze,” *Instagram personal project*, and receives a moodboard, playlist, and meme captions.  
+- A **set designer** chooses “cyberpunk fintech,” *shoot ideas*, and Palette outputs visual references + film stills + set design prompts.  
+- A **small business owner** selects “pink pilates princess,” *campaign mock-up*, *Gen Z audience*, and gets LinkedIn ad ideas, hashtags, and visuals ready to drop into Canva.  
 
-**Auth & Integrations (Future)**    
-- Spotify login → personalized recommendations based on user playlists    
-- Pinterest login → vibe boards generated from user pins    
-- Tumblr login → recommendations from followed blogs/tags  
 
-**AI Models**    
-- CLIP (Hugging Face) for embeddings & aesthetic matching    
-- Sentence-Transformers for text similarity    
-- Claude / OpenAI / Llama-based LLM for rationale + assistant mode    
-- Stable Diffusion for image generation (stretch)    
-- LoRA fine-tuning for consistent visual styles (stretch)  
+## Features (MVP Scope)
+- **Inputs:**  
+  - Vibe/Aesthetic (text field)  
+  - Audience (Gen Z / Millennials / Both)  
+  - Purpose (Personal / Campaign)  
+  - Platform (LinkedIn, Instagram, Facebook, TikTok)  
+  - Output Type (Campaign Mock-up, Shoot Ideas, Set Brief)  
 
-**Database / Storage**    
-- Supabase / PostgreSQL for users, boards, embeddings    
-- Cloudinary / Uploadcare for images  
+- **Outputs:**  
+  - Playlist (Spotify embeds)  
+  - Film/Media references (TMDb API)  
+  - Moodboard images (Unsplash/Tumblr API)  
+  - Hashtags & keywords (LLM generated, audience-specific)  
+  - Post ideas/hooks (LLM generated, platform-specific)  
+  - AI rationale (“why these elements fit your vibe & audience”)  
+  - Exportable as **shareable link** or **PDF/slidedeck**  
 
-**Evals**    
-- PostHog for user analytics    
-- Custom eval panel for vibe alignment, tag overlap, and time saved  
 
-**Deployment**    
-- Vercel (frontend + serverless) and/or Hugging Face Spaces  
+## Stretch Features
+- **Stable Diffusion + LoRA adapters** for generating aesthetic visuals (custom vibes: *dark academia*, *pink pilates princess*).  
+- **Campaign analytics integration**: engagement predictions based on post type + hashtags.  
+- **Pinterest/Instagram login**: generate boards from user pins or saved posts.  
 
-## Success Metrics  
-- Workflow adoption: % of users building ≥2 boards per week
-- Cross-modal use: % of boards containing more than one medium (music + film + fashion)    
-- Export/share rate: # of boards shared externally    
-- Creative feedback: qualitative feedback on usefulness for real creative workflows  
 
-## Risks & Challenges  
-- API limitations (Tumblr, Pinterest access, Spotify rate limits)    
-- Convincing creatives Palette is a workflow enhancer not a replacement of human creativity   
-- Balancing aesthetics vs. usability (ensuring outputs are practical and accurate, not just pretty)    
-- Cold-start problem (new users with sparse inputs)  
+## Technical Stack
+**Frontend**: Next.js (App Router) + Tailwind CSS  
+**Backend/API**: Next.js API routes or FastAPI microservice for embeddings & orchestration  
 
-## Next Steps  
-1. Build structured form workflow (input → curated board)    
-2. Add AI assistant workflow (chat → curated board)    
-3. Integrate Spotify + TMDb APIs (stable + widely used)    
-4. Add Unsplash + Tumblr integrations for visuals    
-5. Layer in export features (PDFs, sharable links)    
-6. Stretch: experiment with Stable Diffusion + LoRA for cohesive aesthetic visuals  
+**Integrations (MVP):**  
+- Spotify API (music)  
+- TMDb API (films)  
+- Unsplash API (visuals)  
+- Tumblr API (aesthetic content)  
 
-Created using ChatPRD, ChatGPT, oh and me!  
+**AI Models:**  
+- CLIP (Hugging Face) for embeddings & vibe matching  
+- Sentence-Transformers for text similarity  
+- Claude / GPT-4 / LLaMA-3 for rationale, hashtags, and post ideas  
+- Stable Diffusion (stretch) for generated images  
+- LoRA (stretch) for fine-tuned aesthetics  
+
+**Database/Storage:** Supabase/Postgres (users, boards), Cloudinary (images)  
+**Export:** Puppeteer (HTML → PDF), dynamic routes for shareable links  
+**Deployment:** Vercel (frontend + serverless), Hugging Face Spaces (AI hosting)  
+
+
+## Success Metrics
+- **Adoption:** % of users generating ≥2 inspo packs/week  
+- **Cross-modal use:** % of packs containing music + film + visuals  
+- **Export/share rate:** # of packs shared as links or downloads  
+- **Engagement fit:** qualitative feedback (“Did this feel culturally on point?”)  
+- **Time saved:** avg. minutes saved vs manual workflow  
+
+
+## Risks & Challenges
+- API limitations (Spotify rate limits, Tumblr/Pinterest access).  
+- Convincing users Palette is a **workflow enhancer, not a novelty toy**.  
+- Balancing cultural aesthetics with business needs.  
+- Cold-start: new users may not know which vibes to input.  
+
+
+## Next Steps
+1. Build structured form workflow (input → inspo pack).  
+2. Integrate Spotify + TMDb + Unsplash APIs.  
+3. Render output in clean web layout with export/share options.  
+4. Add AI-generated rationale, hashtags, and post ideas (audience/platform-specific).  
+5. Test with 3–5 creatives/marketers for impact stories.  
+6. Stretch: add Stable Diffusion LoRA for unique generated visuals.  u
+
+✨ *Created with ChatPRD, ChatGPT, and Shawdi.*  
