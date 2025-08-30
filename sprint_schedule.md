@@ -1,107 +1,97 @@
 # palette – 7 Day Sprint Plan
 
 ## Sprint Goal
-Deliver a minimum viable product (MVP) of palette, a creative workflow app that curates cross-modal boards (music, film, fashion, visuals).  
-By the end of the sprint: a live deployed demo where a user can generate and export a curated board via structured input or chat.
-
----
+Deliver a **minimum viable product (MVP)** of palette: a creative workflow copilot that generates curated inspo packs (playlist, film refs, visuals, hashtags, post ideas, rationale).  
+By the end of the sprint: a **live deployed demo** where a user can input a vibe + context (purpose, audience, platform) and export a one-page board via **shareable link or PDF/slidedeck**.
 
 ## Day 1 – Project Setup & Spotify Integration
 **Objectives**
-- Initialize GitHub repo with README, CLAUDE.md, PRD.md.
-- Configure `.gitignore` and environment variables (`.env`).
-- Set up Next.js + Tailwind CSS frontend.
-- Set up Supabase database and Cloudinary account.
-- Implement Spotify API integration for playlist generation.
+- Initialize GitHub repo with README, CLAUDE.md, PRD.md.  
+- Configure `.gitignore` and environment variables (`.env`).  
+- Set up Next.js + Tailwind CSS frontend.  
+- Deploy baseline app scaffold to Vercel.  
+- Implement Spotify API integration for playlist generation.  
 
 **Deliverables**
-- Repo initialized and deployed on Vercel.
-- Spotify API returning playlists for seed inputs.
+- Repo initialized + deployed (Vercel).  
+- User can input a mood/keyword → system fetches playlists via Spotify API.  
 
----
 
-## Day 2 – Embeddings & Music Workflow
+## Day 2 – Vibe Mapping & Music Workflow
 **Objectives**
-- Add CLIP or Sentence-Transformers embeddings for vibe matching.
-- Implement mapping between tags → genres → playlists.
-- Display curated playlists on frontend via Spotify embeds.
-- Write unit tests for Spotify module.
+- Add CLIP or Sentence-Transformers embeddings for vibe → genre matching.  
+- Implement mapping pipeline: vibe input → tags → Spotify playlist.  
+- Display curated playlists on frontend with Spotify embeds.  
+- Unit test Spotify + embeddings module.  
 
 **Deliverables**
-- User can enter songs or mood tags → receive curated Spotify playlist.
-- Feature branch merged (`feature/spotify-integration`).
-
----
+- User can type a vibe/aesthetic → curated playlist appears.  
+- Feature branch merged (`feature/spotify-integration`).  
 
 ## Day 3 – Film Recommendation Integration
 **Objectives**
-- Connect TMDb API for film metadata and recommendations.
-- Build normalization script for genre tags.
-- Display curated film posters and descriptions on board.
-- Write tests for film recommendation flow.
+- Connect TMDb API for film metadata and recommendations.  
+- Normalize genres between vibe embeddings and TMDb tags.  
+- Display curated film posters + metadata on board.  
+- Test film recommendation pipeline.  
 
 **Deliverables**
-- User can input favorite films → system recommends related films.
-- Feature branch merged (`feature/tmdb-films`).
+- User enters vibe → film references populate on board.  
+- Feature branch merged (`feature/tmdb-films`).  
 
----
-
-## Day 4 – Fashion / Moodboard Integration
+## Day 4 – Visuals & Moodboard Integration
 **Objectives**
-- Integrate Unsplash API for aesthetic imagery.
-- Integrate Tumblr API for community/aesthetic imagery.
-- Deduplicate and clean fetched images.
-- Render film posters, playlists, and moodboard images together on board.
+- Integrate Unsplash API for aesthetic photos.  
+- Integrate Tumblr API for niche aesthetic imagery.  
+- Deduplicate/clean images with simple filter.  
+- Render full inspo board: playlist + films + visuals.  
 
 **Deliverables**
-- Working prototype board with music, films, and visuals.
-- Feature branch merged (`feature/unsplash-tumblr`).
+- Board shows music + film + visuals together.  
+- Feature branch merged (`feature/unsplash-tumblr`).  
 
----
 
-## Day 5 – Export & Database Integration
+## Day 5 – Audience/Platform Inputs + Export Layer
 **Objectives**
-- Store boards in Supabase (user, inputs, outputs, embeddings).
-- Implement export features: PDF deck, shareable link.
-- Configure Cloudinary for storing board images.
-- Add PostHog analytics for user events (board created, board exported).
+- Add input fields: Purpose (personal/campaign), Audience (Gen Z/Millennials/both), Platform (LinkedIn/Instagram/Facebook/TikTok), Output Type (mock-up/shoot/set).  
+- Adjust hashtags, post ideas, rationale based on inputs (LLM).  
+- Implement export features:  
+  - Shareable link (`/board/[id]`)  
+  - PDF/slidedeck via Puppeteer.  
+- Connect Supabase to save boards + metadata.  
 
 **Deliverables**
-- Board can be saved, exported as PDF, and shared.
-- Feature branch merged (`feature/export`).
+- User can generate tailored inspo pack based on audience/platform.  
+- Board exportable via link and PDF.  
+- Feature branch merged (`feature/export`, `feature/workflow-inputs`).  
 
----
-
-## Day 6 – AI Creative Assistant Integration
+## Day 6 – AI Assistant Integration
 **Objectives**
-- Add Claude/GPT API for chat-based workflow.
-- Build orchestration pipeline: chat → structured tags → board generation.
-- Implement iterative refinement (“make it darker,” “lean more futuristic”).
-- Compare chat outputs vs. form inputs for consistency.
+- Add Claude/GPT API for conversational workflow.  
+- Orchestrate pipeline: chat input → structured tags → board generation.  
+- Support refinements (e.g., *“make it more futuristic”*, *“lean Gen Z”*).  
+- Compare chat vs. form outputs for consistency.  
 
 **Deliverables**
-- Functional chat assistant generating boards.
-- Feature branch merged (`feature/agent-integration`).
-
----
+- Functional chat assistant generating boards.  
+- Feature branch merged (`feature/agent-integration`).  
 
 ## Day 7 – Testing, Polish & Demo
 **Objectives**
-- Test full end-to-end workflows (form + chat).
-- Conduct user testing with 2–3 creatives for feedback.
-- Polish UI with Tailwind components.
-- Record 60-second demo video (problem → workflow → output).
-- Update documentation (README, PRD, CLAUDE.md).
-- Deploy final build to Vercel (`palette.querate.ai` or subdomain).
+- Test full workflows (form + chat + export).  
+- Conduct quick user testing (2–3 creatives/marketers).  
+- Polish UI with Tailwind components + aesthetic layouts.  
+- Record 60-second demo video (problem → input → output → impact).  
+- Update docs (README, PRD, CLAUDE.md, Sprint Plan).  
+- Deploy final build to Vercel (`palette.app` or subdomain).  
 
 **Deliverables**
-- Live, polished MVP deployed and shareable.
-- Demo video recorded and linked in README.
-
----
+- Live, polished MVP deployed and shareable.  
+- Demo video recorded and linked in README.  
 
 ## Success Criteria
-- User can create a cross-modal board with music, film, and visuals in under 2 minutes.
-- Export and share features work reliably.
-- Both structured workflow and chat assistant produce usable outputs.
-- Documentation and repo are professional, clean, and recruiter-ready.
+- User can generate a cross-modal inspo pack (music, film, visuals, hashtags, post ideas, rationale) in <2 minutes.  
+- Export (link + PDF/slidedeck) works reliably.  
+- Inputs for purpose, audience, platform meaningfully change outputs.  
+- Chat and form workflows both functional.  
+- Repo + docs clean, professional, recruiter-ready.  
