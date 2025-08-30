@@ -1,115 +1,116 @@
-# PRD – Palette (Creative Workflow Copilot)
+# PRD – Palette (AI-Powered Aesthetic Translator)
 
 ## Product Idea Summary
-Palette is an AI-powered creative workflow web app that generates **ready-to-use inspo packs** for campaigns, posts, or personal projects. Instead of juggling Spotify, TMDb/IMDb, Unsplash, and Pinterest separately, Palette centralizes playlists, visuals, cultural references, hashtags, and post ideas into a **sharable one-page brief**.  
+Palette is an AI-powered creative workflow app that translates **products and companies into aesthetic moodboards and briefs** with visuals, playlists, cultural references, and copy.  
 
-Users can:
-- Input a vibe or aesthetic (*“pink pilates princess”*, *“indie sleaze”*) and optional campaign goal.  
-- Choose audience (Gen Z, Millennials, or both) and platform (LinkedIn, Instagram, Facebook, TikTok).  
-- Select output type: Campaign Mock-up, Shoot Ideas, or Set Design Brief.  
-- Instantly receive a curated inspo pack with playlist, visuals, film refs, hashtags/keywords, post hooks, and rationale.  
-- Export as a shareable link or downloadable PDF/slidedeck.  
+Users can:  
+- Upload **brand guidelines, product docs, or pitch decks** → Palette uses RAG (Retrieval-Augmented Generation) to ground outputs in brand fonts, colors, and product messaging.  
+- Or simply enter a **logo, one-liner description, or product image** in chat → Palette generates aesthetic boards contextualizing the brand within familiar Gen Z/Millennial aesthetics.  
+
+The result: **deck-ready vibe boards and campaign briefs** that save strategists, creators, and founders hours of manual curation while ensuring cultural fluency.  
 
 ## Target Users
-- **Brand strategists & marketers** → vibe packs for campaign decks & ad content.  
-- **Creative directors & designers** → shoot/set ideas aligned with cultural aesthetics.  
-- **Content creators** → quick inspo for TikTok/Instagram posts.  
-- **Gen Z creatives & students** → personal aesthetic exploration for projects.  
-- **B2B marketers** → campaigns that feel culturally fluent to younger audiences.  
+- **Startups & early-stage companies** → contextualize products and brands for campaigns, recruiting, or investors.  
+- **Brand strategists & marketers** → campaign-ready vibe packs.  
+- **Creative directors & agencies** → client pitches and campaign ideation.  
+- **Content creators & influencers** → brand collab positioning.  
 
 
 ## Context / Motivation
-Creative workflows today are **fragmented**: users bounce between ChatGPT (text), Pinterest (visuals), Spotify (music), and Canva (execution).  
-- ChatGPT can list ideas, but it doesn’t output *real assets*.  
-- Canva gives templates, but not Gen Z-native vibes.  
+We are living in a time of **product overload**: every day new brands, apps, collectibles, and startups are launched.  
+- It’s hard for strategists and consumers to **contextualize new products** within cultural trends.  
+- Brands struggle to **position themselves for Gen Z and Millennials**, who filter the world through aesthetics (“starter packs,” “cores,” “vibes”).  
+- Manual moodboard curation takes hours/days and often feels disconnected from cultural fluency.  
 
-Palette reduces friction by:  
-- Automating **cross-modal discovery** (music, film, visuals, text).  
-- Centralizing outputs into **workflow-ready briefs**.  
-- Acting as a **cultural translator**, making campaigns vibe-native for Gen Z & Millennials.  
+**Palette bridges that gap by:**  
+- Translating brand inputs (guidelines or simple prompts) into aesthetic boards.  
+- Showing products **next to familiar cultural cues** (films, music, fashion, memes).  
+- Delivering both **visual inspiration** and **copywriting outputs** (hashtags, captions, taglines).  
 
 
 ## Goals
-- Deliver a **seamless creative workflow** for campaigns & posts.  
-- Provide personalization by **purpose, platform, and audience**.  
-- Support both **strategic use cases** (campaign decks, ad mockups) and **creative exploration**.  
-- Showcase AI as a **collaborative co-pilot**, not just a recommender.  
+- **Reduce time-to-deck**: turn days of curation into minutes.  
+- Allow **flexible input modes** (lightweight prompt or full RAG-based brand pack).  
+- Deliver outputs that are **shareable, editable, and campaign-ready**.  
+- Make unfamiliar products **instantly relatable** through cultural association.  
 
 
 ## Use Cases
-- A **brand strategist** inputs “coastal grandmother,” selects *LinkedIn campaign*, and gets a brief with posts + hashtags for professional wellness branding.  
-- A **content creator** selects “indie sleaze,” *Instagram personal project*, and receives a moodboard, playlist, and meme captions.  
-- A **set designer** chooses “cyberpunk fintech,” *shoot ideas*, and Palette outputs visual references + film stills + set design prompts.  
-- A **small business owner** selects “pink pilates princess,” *campaign mock-up*, *Gen Z audience*, and gets LinkedIn ad ideas, hashtags, and visuals ready to drop into Canva.  
+1. **Startup founder** uploads a PDF pitch deck + logo → Palette generates *Tech Bro Starter Pack* and *Gen Z Hacker Core* vibe boards, grounded in their color palette and product story.  
+2. **Toy brand** uploads just a product photo (*Labubu*) → Palette outputs *Coquette x Collectible Core* vibe board with Sanrio references, Spotify playlists, and post hooks.  
+3. **AI infra company** (Windsurf) pastes one-liner *“AI infra for startups”* → Palette generates a *Gen Z Hacker/Builder aesthetic* board with visuals, hashtags, and tagline *“Build at windspeed.”*  
+4. **Agency strategist** uploads client brand guidelines → Palette generates moodboards aligned to client fonts/colors, but framed in aesthetics like *Clean Girl Minimalism* or *Cyberpunk Core*.  
 
 
 ## Features (MVP Scope)
-- **Inputs:**  
-  - Vibe/Aesthetic (text field)  
-  - Audience (Gen Z / Millennials / Both)  
-  - Purpose (Personal / Campaign)  
-  - Platform (LinkedIn, Instagram, Facebook, TikTok)  
-  - Output Type (Campaign Mock-up, Shoot Ideas, Set Brief)  
 
-- **Outputs:**  
-  - Playlist (Spotify embeds)  
-  - Film/Media references (TMDb API)  
-  - Moodboard images (Unsplash/Tumblr API)  
-  - Hashtags & keywords (LLM generated, audience-specific)  
-  - Post ideas/hooks (LLM generated, platform-specific)  
-  - AI rationale (“why these elements fit your vibe & audience”)  
-  - Exportable as **shareable link** or **PDF/slidedeck**  
+### Inputs
+- **Option A: Lightweight prompt**  
+  - Logo (image upload).  
+  - One-liner description (text).  
+  - Optional: product photo.  
 
+- **Option B: Brand doc upload (RAG mode)**  
+  - PDFs: brand guidelines, product decks, examples.  
+  - Palette extracts color schemes, fonts, messaging → guides outputs.  
+
+- **Shared settings:**  
+  - Audience (Gen Z / Millennials / Both).  
+  - Platform (Instagram, TikTok, LinkedIn, etc.).  
+  - Output type (Moodboard, Campaign Brief, Creative Deck).  
+
+### Outputs
+- **Visuals** → curated moodboard images (Unsplash, Tumblr).  
+- **Music** → Spotify playlists via vibe tags.  
+- **Cultural references** → films, memes, subcultures (TMDb/LLM).  
+- **Copy** → hashtags, captions, post hooks, taglines (LLM).  
+- **Rationale** → why this vibe matches product/audience.  
+- **Export** → shareable link or downloadable PDF deck.  
+- **Editable board** → swap visuals, text, playlists.  
+
+---
 
 ## Stretch Features
-- **Stable Diffusion + LoRA adapters** for generating aesthetic visuals (custom vibes: *dark academia*, *pink pilates princess*).  
-- **Campaign analytics integration**: engagement predictions based on post type + hashtags.  
-- **Pinterest/Instagram login**: generate boards from user pins or saved posts.  
+- **Stable Diffusion + LoRA adapters** → render products/logos into aesthetic contexts.  
+- **Analytics integration** → predict engagement by vibe/platform.  
+- **Collaboration mode** → multiple users edit/share boards.  
+- **API mode** → embed Palette’s aesthetic translator into other marketing/creative SaaS.  
 
+---
 
 ## Technical Stack
-**Frontend**: Next.js (App Router) + Tailwind CSS  
-**Backend/API**: Next.js API routes or FastAPI microservice for embeddings & orchestration  
-
-**Integrations (MVP):**  
-- Spotify API (music)  
-- TMDb API (films)  
-- Unsplash API (visuals)  
-- Tumblr API (aesthetic content)  
-
-**AI Models:**  
-- CLIP (Hugging Face) for embeddings & vibe matching  
-- Sentence-Transformers for text similarity  
-- Claude / GPT-4 / LLaMA-3 for rationale, hashtags, and post ideas  
-- Stable Diffusion (stretch) for generated images  
-- LoRA (stretch) for fine-tuned aesthetics  
-
-**Database/Storage:** Supabase/Postgres (users, boards), Cloudinary (images)  
-**Export:** Puppeteer (HTML → PDF), dynamic routes for shareable links  
-**Deployment:** Vercel (frontend + serverless), Hugging Face Spaces (AI hosting)  
+- **Frontend:** Next.js (App Router) + Tailwind CSS  
+- **Backend/API:** Next.js API routes or FastAPI microservice  
+- **Integrations (MVP):** Spotify, Unsplash, Tumblr, TMDb/IMDb  
+- **AI Models:**  
+  - CLIP for embeddings.  
+  - Sentence-Transformers for similarity.  
+  - Claude/GPT for copy + rationale.  
+  - RAG pipeline for PDF/brand doc grounding.  
+  - (Stretch) Stable Diffusion + LoRA for generated visuals.  
+- **Database/Storage:** Supabase (users, boards), Cloudinary (images)  
+- **Export:** Puppeteer (HTML → PDF), shareable links  
+- **Deployment:** Vercel + Hugging Face Spaces  
 
 
 ## Success Metrics
-- **Adoption:** % of users generating ≥2 inspo packs/week  
-- **Cross-modal use:** % of packs containing music + film + visuals  
-- **Export/share rate:** # of packs shared as links or downloads  
-- **Engagement fit:** qualitative feedback (“Did this feel culturally on point?”)  
-- **Time saved:** avg. minutes saved vs manual workflow  
+- % of users using **brand doc upload** vs lightweight prompt.  
+- % of boards exported/shared in decks.  
+- Time saved (manual vs Palette).  
+- Qualitative feedback on **aesthetic accuracy + cultural fit**.  
 
 
 ## Risks & Challenges
-- API limitations (Spotify rate limits, Tumblr/Pinterest access).  
-- Convincing users Palette is a **workflow enhancer, not a novelty toy**.  
-- Balancing cultural aesthetics with business needs.  
-- Cold-start: new users may not know which vibes to input.  
+- **Cold start**: must seed Palette with a taxonomy of aesthetics.  
+- **Data extraction**: brand PDFs vary in structure; RAG may misinterpret.  
+- **Quality**: outputs must feel authentic to Gen Z culture.  
+- **Perception**: must show value as a **workflow tool**, not novelty generator.  
 
 
 ## Next Steps
-1. Build structured form workflow (input → inspo pack).  
-2. Integrate Spotify + TMDb + Unsplash APIs.  
-3. Render output in clean web layout with export/share options.  
-4. Add AI-generated rationale, hashtags, and post ideas (audience/platform-specific).  
-5. Test with 3–5 creatives/marketers for impact stories.  
-6. Stretch: add Stable Diffusion LoRA for unique generated visuals.  u
-
-✨ *Created with ChatPRD, ChatGPT, and Shawdi.*  
+1. Build lightweight input flow (logo + one-liner → board).  
+2. Add PDF brand doc upload + RAG pipeline.  
+3. Integrate Spotify + Unsplash + Tumblr APIs for first outputs.  
+4. Export/share features (PDF, link).  
+5. User test with startup founders + brand strategists.  
+6. Stretch: LoRA-generated product visuals.  

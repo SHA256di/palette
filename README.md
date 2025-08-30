@@ -1,95 +1,132 @@
-# palette 🎨 : a creative workflow curator
-palette is a creative workflow web app that helps users materialize a vibe or aesthetic into a curated board in seconds. Instead of spending hours manually pulling references across music, film, and moodboard platforms, users can enter a few favorites, and palette generates a shareable aesthetic board with playlists, films, fashion brands, moodboard images, and a rationale tying them together.
+# palette 🎨 : a creative workflow curator  
 
-The app works in two modes:
+**palette** is an AI-powered web app that helps users turn a vibe, product, or aesthetic into a curated moodboard in seconds.  
 
-## Structured Workflow
-Users fill out a clean form with their favorite songs, movies, and designers. palette then uses embeddings (CLIP + sentence-transformers) and APIs (Spotify, TMDb, Unsplash, Tumblr) to build a personalized cross-media recommendation set.
+Instead of manually pulling references from Spotify, TMDb, Discogs, Unsplash, and Tumblr, palette generates a **shareable aesthetic board** that combines playlists, films, album covers, visuals, quotes, and rationale into a single, deck-ready output.  
 
-## Creative Assistant
-A chat-based AI curator lets users free-prompt their vision (e.g., “dreamy indie, Sofia Coppola vibes with a Y2K twist”). The AI parses this into structured tags and regenerates a curated board, supporting iterative feedback loops like “make it darker” or “lean more futuristic.”
-
-Each board is deck-ready: users can view Spotify embeds, film posters (via TMDb/IMDb), brand references, and visual inspiration side by side. Boards can be exported as a PDF deck or shared with a link — making it ideal for creative directors, brand strategists, set designers, or content creators.
+The app works in two modes:  
 
 ---
 
-## Target Users
-- Gen Z and creative professionals (brand strategists, production/set designers, content creators)  
-- People who want to go from vibe → board fast (hours of manual curation compressed into minutes)  
-- Creative directors prepping campaign pitches  
-- Students and personal creators exploring aesthetics  
+## Structured Workflow  
+Users fill out a clean form with:  
+- A vibe or product name (e.g., *“pink pilates princess”*, *“windsurf startup”*)  
+- Optional brand context (audience, platform, purpose)  
 
-## Tech Stack
+Palette then uses embeddings (CLIP + sentence-transformers) and APIs (Spotify, Last.fm, TMDb, Discogs, Unsplash, Tumblr) to assemble a **cross-media board**.  
+
+---
+
+## Creative Assistant  
+A chat-based AI curator lets users free-prompt their vision (e.g., “make me a *girlblogger aesthetic board* around Diet Coke”). The assistant parses the input into structured tags and regenerates a board with refinement loops like:  
+- “Make it darker”  
+- “More Y2K”  
+- “Add Lana Del Rey references”  
+
+---
+
+## Output  
+Each board is **moodboard-first**: a white-background collage layout with:  
+- Spotify embeds + Last.fm tags (music)  
+- Film posters/loglines (TMDb)  
+- Album covers (Discogs)  
+- Aesthetic visuals (Unsplash, Tumblr)  
+- Quotes or phrases pulled from APIs or LLMs  
+- Optional product placement (logos, new products contextualized among familiar items)  
+
+Boards can be:  
+- Exported as PDF/PNG slides  
+- Shared via link  
+- Iterated with AI  
+
+---
+
+## Target Users  
+- **Brand strategists & marketers** → vibe packs for campaign decks & ad mockups  
+- **Creative directors & designers** → quick inspo boards for set/campaign design  
+- **Content creators** → aesthetic boards for TikTok/Instagram  
+- **Gen Z creatives & students** → exploring and remixing aesthetics  
+- **B2B marketers** → translating new products into familiar cultural contexts  
+
+---
+
+## Tech Stack  
 
 **Frontend**  
 - Next.js (App Router) + Tailwind CSS  
+- Konva.js / Fabric.js for collage layout rendering  
 
 **Backend / API**  
-- Next.js API routes (serverless) or small Python microservice (for embeddings)  
+- Next.js API routes or small FastAPI microservice for embeddings  
 
-**Auth & Integrations (MVP)**  
-- Spotify API (music search + playlist generation)  
-- TMDb API (films, with IMDb IDs for metadata cross-reference)  
-- Unsplash API (fashion/moodboard photos)  
-- Tumblr API (aesthetic/community-sourced vibe content)  
+**Integrations (MVP)**  
+- Spotify API (music search + playlists)  
+- Last.fm API (tags + vibe mapping)  
+- TMDb API (films, metadata, posters)  
+- Discogs API (album covers)  
+- Unsplash API (general visuals)  
+- Tumblr API (aesthetic/quote content)  
 
-**Auth & Integrations (Future Features)**  
-- Spotify login → personalized recommendations based on user playlists  
-- Pinterest login → vibe boards generated from existing pins  
-- Tumblr login → curated aesthetics based on followed blogs/tags  
+**Future Integrations**  
+- Pinterest/Instagram login → vibe boards from saved pins  
+- Spotify login → playlist-based personalization  
+- Brand guideline upload (PDF/RAG) → color/font alignment  
 
 **AI Models**  
-- CLIP (Hugging Face) for embeddings & aesthetic matching  
+- CLIP (Hugging Face) for embeddings & vibe matching  
 - Sentence-Transformers for text similarity  
-- Claude / OpenAI / Llama-based LLM for tag cleaning, rationale, and assistant mode  
-- (Stretch) Stable Diffusion for generating moodboard visuals  
-- (Stretch) LoRA adapters for consistent style transfer  
+- Claude / GPT-4 / LLaMA for rationale, hashtags, quotes, and refinements  
+- (Stretch) Stable Diffusion for AI-generated visuals  
+- (Stretch) LoRA adapters for style-specific boards  
 
 **Database / Storage**  
-- Supabase / PostgreSQL (users, boards, embeddings, connections)  
-- Cloudinary / Uploadcare for images  
+- Supabase (PostgreSQL for users, boards, embeddings)  
+- Cloudinary (for storing images + exported boards)  
 
 **Analytics / Evals**  
-- PostHog for events  
-- Custom eval panel (vibe alignment, tag overlap, time saved)  
+- PostHog for event tracking  
+- Eval panel (tag overlap, vibe alignment, time saved)  
 
 **Deployment**  
-- Vercel (frontend + serverless) and/or Hugging Face Spaces  
+- Vercel (frontend + serverless)  
+- Hugging Face Spaces (model hosting, optional)  
 
-## Workflow
+---
 
-### Structured Mode (Form)
-- User manually enters favorites (music, films, designers)  
-- Inputs normalized with LLM (deduped, cleaned)  
-- Map inputs to embeddings and retrieve candidates (Spotify, TMDb, Unsplash, Tumblr)  
-- Rank matches by cosine similarity + filters (aesthetic, energy, era)  
-- Generate curated board → save to DB → render on UI  
-- Export PDF, copy share link, or duplicate board  
-- (Stretch) Apply trained LoRA aesthetic adapters to re-render moodboard visuals in the requested style (e.g., Wes Anderson, dark academia)  
+## Workflow  
 
-### Assistant Mode (Chat)
-- User prompts an aesthetic or vibe (e.g., “dreamy indie, Sofia Coppola vibes”)  
-- AI parses into structured tags (genres, aesthetics, brands, directors)  
-- Run through same retrieval pipeline as above  
-- Return curated board + rationale  
-- AI stays in the loop for iteration (“make it darker”, “more futuristic”)  
-- (Stretch) Enable iterative refinement using LoRA adapters that apply different trained aesthetics with each adjustment  
+### Structured Mode (Form)  
+1. User enters vibe/product + context.  
+2. Inputs normalized with LLM (deduped, cleaned).  
+3. Pipeline retrieves candidates from Spotify, Last.fm, TMDb, Discogs, Unsplash, Tumblr.  
+4. Elements ranked + assembled into collage layout template (images, text, album covers, quotes).  
+5. User exports/share board.  
 
-## Core Features
-- Curated Board Output: playlist (Spotify embed), films (posters/loglines), fashion (logos/moods), moodboard images, AI rationale  
-- Eval Panel: vibe alignment score, tag coverage, similarity metrics  
-- Exports: PDF deck, public share link with OG preview  
-- Creative Assistant: chat-based exploration with refinement loops  
+### Assistant Mode (Chat)  
+1. User prompts aesthetic (“NYC finance starter pack with iced lattes”).  
+2. AI generates structured tags (brands, genres, phrases).  
+3. Same retrieval pipeline runs → outputs board.  
+4. User refines via conversation.  
 
-## Stretch Features (LoRA)
-- LoRA-based aesthetic adapters: fine-tuned lightweight models trained on curated datasets (e.g., dark academia, Y2K fashion, film noir posters) to generate visuals with consistent style and cohesion  
-- Designer & brand style LoRAs: train adapters on small image sets from fashion designers (e.g., Prada, Rick Owens) to reflect designer-specific aesthetics in moodboard outputs  
-- Film poster LoRAs: fine-tune on groups of film posters by genre so that outputs reflect cinematic styles  
-- Eval integration: compare baseline visuals vs. LoRA outputs with similarity scores and vibe alignment metrics  
+---
 
-## Future Enhancements
-- Pinterest / Tumblr OAuth logins for personalized recommendations from user data  
-- Spotify login for playlist-based taste modeling  
-- Collaborative boards (multi-user edits)  
-- Advanced eval dashboard (track time saved, creative overlap)  
-- A curated LoRA visual style library (users can toggle between dark academia, streetwear, film noir, etc.)  
+## Core Features  
+- **Moodboard-first output**: playlist, films, album covers, images, quotes, rationale.  
+- **Export tools**: PDF, PNG, shareable links.  
+- **Creative Assistant**: chat-based refinement.  
+- **Product contextualization**: place new products alongside familiar aesthetics.  
+
+---
+
+## Stretch Features  
+- **LoRA adapters**: fine-tuned lightweight models for styles (*dark academia*, *girlblogger*, *Y2K*, *film noir*).  
+- **Brand guideline upload (RAG)**: PDF ingestion to enforce fonts, colors, tone.  
+- **Campaign analytics**: predict engagement by vibe/hashtags.  
+- **Collaborative boards**: multi-user edits + commenting.  
+
+---
+
+## Future Enhancements  
+- Personalized vibe packs via Spotify/Pinterest login.  
+- Advanced eval dashboard (time saved, cross-modal overlap).  
+- LoRA visual style library (toggle: dark academia, tech bro, streetwear, etc.).  
