@@ -32,6 +32,7 @@ export default function FilmReferences({ vibe, onFilmsGenerated }: FilmReference
   const [error, setError] = useState<string | null>(null)
 
   const generateFilms = async () => {
+    console.log('Generate Films clicked!', vibe)
     setLoading(true)
     setError(null)
 
