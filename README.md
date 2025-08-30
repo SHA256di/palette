@@ -1,23 +1,58 @@
 # palette 🎨 : a creative workflow curator
-palette is a creative workflow web app that helps users materialize a vibe or aesthetic into a curated board in seconds. Instead of spending hours manually pulling references across music, film, and moodboard platforms, users can enter a few favorites, and palette generates a shareable aesthetic board with playlists, films, fashion brands, moodboard images, and a rationale tying them together.
+**palette** is an AI-powered creative workflow app that helps users go from vibe → curated inspo pack in minutes. Instead of spending hours manually pulling references across Spotify, Pinterest, and film databases, palette generates a campaign-ready board with playlists, films, visuals, hashtags, post ideas, and a rationale tying everything together.  
 
-The app works in two modes:
+Boards can be exported as a shareable link or PDF/slidedeck, making them instantly usable for campaign decks, creative pitches, or content planning.  
 
-## Structured Workflow
-Users fill out a clean form with their favorite songs, movies, and designers. palette then uses embeddings (CLIP + sentence-transformers) and APIs (Spotify, TMDb, Unsplash, Tumblr) to build a personalized cross-media recommendation set.
 
-## Creative Assistant
-A chat-based AI curator lets users free-prompt their vision (e.g., “dreamy indie, Sofia Coppola vibes with a Y2K twist”). The AI parses this into structured tags and regenerates a curated board, supporting iterative feedback loops like “make it darker” or “lean more futuristic.”
+## How It Works
 
-Each board is deck-ready: users can view Spotify embeds, film posters (via TMDb/IMDb), brand references, and visual inspiration side by side. Boards can be exported as a PDF deck or shared with a link — making it ideal for creative directors, brand strategists, set designers, or content creators.
+1. **Input**  
+   Users provide a vibe or aesthetic (e.g., "pink pilates princess", "indie sleaze") plus context:  
+   - Purpose: Personal project or Campaign  
+   - Audience: Gen Z, Millennials, or Both  
+   - Platform: LinkedIn, Instagram, Facebook, TikTok  
+   - Output Type: Campaign Mock-up, Shoot Ideas, or Set Design Brief  
 
----
+2. **AI Curation**  
+   palette expands the vibe into structured tags using embeddings (CLIP + sentence-transformers) and LLM reasoning. It then pulls assets via APIs:  
+   - Spotify API → curated playlist embeds  
+   - TMDb API → films, stills, and references  
+   - Unsplash/Tumblr APIs → moodboard visuals  
+   - LLM → hashtags, keywords, post hooks, rationale  
+
+3. **Output**  
+   palette renders a campaign-ready inspo pack:  
+   - Playlist (Spotify embed)  
+   - Film/Media references (TMDb posters + metadata)  
+   - Moodboard visuals (Unsplash/Tumblr)  
+   - Hashtags & keywords (audience + platform-specific)  
+   - Post ideas/hooks (campaign-ready)  
+   - Rationale (explaining why these assets fit the vibe and goal)  
+
+4. **Export**  
+   - Copy shareable link (`/board/[id]`)  
+   - Download PDF/slidedeck (via Puppeteer export)  
+
+
+## Example Output: Pink Pilates Princess (Gen Z, LinkedIn, Campaign Mock-up)
+
+- Playlist: Gracie Abrams, Ariana Grande, Ethel Cain  
+- Film/References: Barbie (2023), Legally Blonde  
+- Visuals: pastel pilates studios, bows and scrunchies, matcha lattes  
+- Hashtags: #PilatesPrincess #Balletcore #GenZWellness  
+- Post Ideas:  
+  1. Carousel: "Wellness is the new hustle: what startups can learn from the Pilates Princess"  
+  2. Video: CEO POV walking into the office in pink athleisure with text overlay: "Balance isn’t a luxury. It’s Gen Z’s demand."  
+  3. Meme: side-by-side comparison of a pilates studio and a startup pitch deck  
+- Rationale: Gen Z resonates with irony and micro-aesthetics. This pack reframes wellness as ambition, using Barbiecore and pilates visuals to connect with younger professionals on LinkedIn.  
+
 
 ## Target Users
-- Gen Z and creative professionals (brand strategists, production/set designers, content creators)  
-- People who want to go from vibe → board fast (hours of manual curation compressed into minutes)  
-- Creative directors prepping campaign pitches  
-- Students and personal creators exploring aesthetics  
+- Brand strategists and marketers creating campaign decks and ads  
+- Creative directors and designers seeking aesthetic-aligned shoot/set references  
+- Content creators looking for fast, ready-to-use inspiration packs  
+- Students and Gen Z creatives exploring aesthetics quickly  
+
 
 ## Tech Stack
 
@@ -25,71 +60,53 @@ Each board is deck-ready: users can view Spotify embeds, film posters (via TMDb/
 - Next.js (App Router) + Tailwind CSS  
 
 **Backend / API**  
-- Next.js API routes (serverless) or small Python microservice (for embeddings)  
-
-**Auth & Integrations (MVP)**  
-- Spotify API (music search + playlist generation)  
-- TMDb API (films, with IMDb IDs for metadata cross-reference)  
-- Unsplash API (fashion/moodboard photos)  
-- Tumblr API (aesthetic/community-sourced vibe content)  
-
-**Auth & Integrations (Future Features)**  
-- Spotify login → personalized recommendations based on user playlists  
-- Pinterest login → vibe boards generated from existing pins  
-- Tumblr login → curated aesthetics based on followed blogs/tags  
+- Next.js API routes (serverless) or Python microservice (for embeddings)  
+- Spotify API (music)  
+- TMDb API (films/media)  
+- Unsplash API (visuals)  
+- Tumblr API (aesthetic imagery)  
 
 **AI Models**  
-- CLIP (Hugging Face) for embeddings & aesthetic matching  
-- Sentence-Transformers for text similarity  
-- Claude / OpenAI / Llama-based LLM for tag cleaning, rationale, and assistant mode  
-- (Stretch) Stable Diffusion for generating moodboard visuals  
-- (Stretch) LoRA adapters for consistent style transfer  
+- CLIP (Hugging Face) for vibe embeddings  
+- Sentence-Transformers for text → tag mapping  
+- Claude / GPT-4 / LLaMA-3 for rationale, hashtags, and hooks  
+- (Stretch) Stable Diffusion + LoRA adapters for generated visuals  
 
 **Database / Storage**  
-- Supabase / PostgreSQL (users, boards, embeddings, connections)  
-- Cloudinary / Uploadcare for images  
+- Supabase (Postgres for users and boards)  
+- Cloudinary (for storing images and exports)  
 
-**Analytics / Evals**  
-- PostHog for events  
-- Custom eval panel (vibe alignment, tag overlap, time saved)  
+**Export**  
+- Dynamic routes for shareable boards (`/board/[id]`)  
+- Puppeteer for HTML → PDF deck export  
 
 **Deployment**  
-- Vercel (frontend + serverless) and/or Hugging Face Spaces  
+- Vercel (frontend + serverless)  
+- Hugging Face Spaces (for ML hosting/experiments)  
 
-## Workflow
 
-### Structured Mode (Form)
-- User manually enters favorites (music, films, designers)  
-- Inputs normalized with LLM (deduped, cleaned)  
-- Map inputs to embeddings and retrieve candidates (Spotify, TMDb, Unsplash, Tumblr)  
-- Rank matches by cosine similarity + filters (aesthetic, energy, era)  
-- Generate curated board → save to DB → render on UI  
-- Export PDF, copy share link, or duplicate board  
-- (Stretch) Apply trained LoRA aesthetic adapters to re-render moodboard visuals in the requested style (e.g., Wes Anderson, dark academia)  
 
-### Assistant Mode (Chat)
-- User prompts an aesthetic or vibe (e.g., “dreamy indie, Sofia Coppola vibes”)  
-- AI parses into structured tags (genres, aesthetics, brands, directors)  
-- Run through same retrieval pipeline as above  
-- Return curated board + rationale  
-- AI stays in the loop for iteration (“make it darker”, “more futuristic”)  
-- (Stretch) Enable iterative refinement using LoRA adapters that apply different trained aesthetics with each adjustment  
+## Roadmap
+1. MVP: Spotify + TMDb + Unsplash integrations, generate boards, export PDF/share link  
+2. Personalization: Inputs for audience, purpose, and platform; tailored hashtags and post ideas  
+3. Refinement: Iterative tweaks ("make it darker", "more ironic")  
+4. Stretch Features: LoRA-based aesthetic adapters, Pinterest/Tumblr OAuth, engagement prediction dashboard  
 
-## Core Features
-- Curated Board Output: playlist (Spotify embed), films (posters/loglines), fashion (logos/moods), moodboard images, AI rationale  
-- Eval Panel: vibe alignment score, tag coverage, similarity metrics  
-- Exports: PDF deck, public share link with OG preview  
-- Creative Assistant: chat-based exploration with refinement loops  
 
-## Stretch Features (LoRA)
-- LoRA-based aesthetic adapters: fine-tuned lightweight models trained on curated datasets (e.g., dark academia, Y2K fashion, film noir posters) to generate visuals with consistent style and cohesion  
-- Designer & brand style LoRAs: train adapters on small image sets from fashion designers (e.g., Prada, Rick Owens) to reflect designer-specific aesthetics in moodboard outputs  
-- Film poster LoRAs: fine-tune on groups of film posters by genre so that outputs reflect cinematic styles  
-- Eval integration: compare baseline visuals vs. LoRA outputs with similarity scores and vibe alignment metrics  
 
-## Future Enhancements
-- Pinterest / Tumblr OAuth logins for personalized recommendations from user data  
-- Spotify login for playlist-based taste modeling  
-- Collaborative boards (multi-user edits)  
-- Advanced eval dashboard (track time saved, creative overlap)  
-- A curated LoRA visual style library (users can toggle between dark academia, streetwear, film noir, etc.)  
+## Success Criteria
+- Users generate boards in under 2 minutes  
+- Export (link + PDF) works reliably  
+- Outputs feel culturally fluent and platform-appropriate  
+- Early testers confirm palette saves 30–60 minutes vs manual workflows  
+
+
+
+## Demo Path (for 60-second APB video)
+1. Landing page → click "Create a Board"  
+2. Input vibe, audience, platform → click "Generate"  
+3. Board renders: playlist, films, visuals, hashtags, post ideas, rationale  
+4. Export PDF and copy share link  
+5. Adjust prompt (e.g., "make it more futuristic") → regenerated board  
+
+
