@@ -20,29 +20,32 @@ By the end of the sprint: a **live deployed demo** where a user can input a vibe
 
 ---
 
-## Day 2 – Vibe Mapping & Music Workflow
+## Day 2 – TMDb Film Integration & Vibe Mapping
 **Objectives**
-- Add CLIP or Sentence-Transformers embeddings for vibe → genre mapping.  
-- Connect Last.fm API (from Moodboard-to-Music base) for genre tags.  
-- Implement mapping pipeline: vibe input → tags → Spotify playlist.  
-- Display curated playlists on frontend with Spotify embeds.  
+- Connect TMDb API for film metadata and posters based on vibe input.
+- Implement vibe → genre mapping using CLIP or Sentence-Transformers embeddings.
+- Map user vibes to film genres/decades for culturally accurate references.
+- Display curated film posters and metadata on frontend.
 
 **Deliverables**
-- User can type a vibe/aesthetic → curated playlist appears.  
-- Feature branch merged (`feature/spotify-integration`).  
+- User can type a vibe/aesthetic → relevant films appear with posters.
+- Feature branch merged (`feature/tmdb-integration`).
 
 ---
 
-## Day 3 – Film & Album Cover Integration
+## Day 3 – Spotify Playlist & Album Cover Integration
 **Objectives**
-- Connect TMDb API for film metadata and posters.  
-- Connect Discogs API for album covers.  
-- Normalize genres between vibe embeddings, TMDb tags, and Discogs metadata.  
-- Display curated film + album covers alongside playlists.  
+- Re-enable Spotify API integration for playlist generation (5 songs per genre).
+- Connect Discogs API with **hybrid thematic + visual approach**:
+  - Primary: Map vibe → music genres/eras → query Discogs for thematically relevant albums
+  - Secondary: Apply basic visual filters (brightness, color tone) for moodboard coherence
+- Implement vibe mapping pipeline: user input → CLIP embeddings → Spotify genres + Discogs album matching.
+- Display curated playlist + culturally accurate album covers.
 
 **Deliverables**
-- User enters vibe → film references + album covers populate on board.  
-- Feature branch merged (`feature/tmdb-discogs`).  
+- User enters vibe → Spotify playlist + thematically matched album covers appear.
+- Albums are culturally accurate (meaning > pure visual matching).
+- Feature branch merged (`feature/spotify-discogs`).  
 
 ---
 

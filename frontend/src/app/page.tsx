@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import FilmReferences from '../components/FilmReferences'
 
 export default function Home() {
   const [vibe, setVibe] = useState('')
@@ -126,14 +127,7 @@ export default function Home() {
               </p>
             </div>
             
-            <div className="bg-white rounded-xl shadow-lg p-6">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                Film & Media References
-              </h3>
-              <p className="text-gray-600">
-                Coming soon: TMDb integration for film recommendations based on your vibe
-              </p>
-            </div>
+            <FilmReferences vibe={vibe} />
 
             <div className="bg-white rounded-xl shadow-lg p-6">
               <h3 className="text-xl font-semibold text-gray-900 mb-4">
