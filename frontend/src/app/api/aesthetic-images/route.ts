@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { searchUnsplashImages, processImageForTransparency } from '@/lib/unsplash'
+import { searchTumblrByTag, getBestTumblrImageUrl, processImageForTransparency } from '@/lib/tumblr'
 
 export async function POST(request: NextRequest) {
   try {
@@ -9,44 +9,55 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Vibe parameter is required' }, { status: 400 })
     }
 
-    const images = await searchUnsplashImages(vibe, limit)
+    const posts = await searchTumblrByTag(vibe, limit)
     
-    // Process images for background removal if requested
+    // Process Tumblr posts into image format
     const processedImages = await Promise.all(
-      images.map(async (image) => {
+      posts.map(async (post) => {
+        const photo = post.photos?.[0]
+        if (!photo) return null
+
+        const imageUrl = getBestTumblrImageUrl(photo, 'medium')
+        const smallUrl = getBestTumblrImageUrl(photo, 'small')
         const processedUrl = removeBackground 
-          ? await processImageForTransparency(image.urls.regular)
-          : image.urls.regular
+          ? await processImageForTransparency(imageUrl)
+          : imageUrl
 
         return {
-          id: image.id,
+          id: post.id,
           url: processedUrl,
-          originalUrl: image.urls.regular,
-          smallUrl: image.urls.small,
-          thumbUrl: image.urls.thumb,
-          alt: image.alt_description || image.description || 'Aesthetic image',
-          photographer: {
-            name: image.user.name,
-            username: image.user.username
+          originalUrl: imageUrl,
+          smallUrl: smallUrl,
+          thumbUrl: smallUrl,
+          alt: photo.caption || `${vibe} aesthetic from Tumblr`,
+          blogger: {
+            name: post.blog_name,
+            url: post.post_url
           },
-          width: image.width,
-          height: image.height,
-          color: image.color,
-          processed: removeBackground
+          tags: post.tags,
+          timestamp: post.timestamp,
+          width: photo.original_size?.width || 0,
+          height: photo.original_size?.height || 0,
+          processed: removeBackground,
+          source: 'tumblr'
         }
       })
     )
 
+    // Filter out null results
+    const validImages = processedImages.filter(img => img !== null)
+
     return NextResponse.json({ 
-      images: processedImages,
+      images: validImages,
       vibe,
-      total: processedImages.length,
-      backgroundRemoved: removeBackground
+      total: validImages.length,
+      backgroundRemoved: removeBackground,
+      source: 'tumblr'
     })
   } catch (error) {
-    console.error('Error generating aesthetic images:', error)
+    console.error('Error generating aesthetic images from Tumblr:', error)
     return NextResponse.json(
-      { error: 'Failed to generate aesthetic images' },
+      { error: 'Failed to generate aesthetic images from Tumblr' },
       { status: 500 }
     )
   }
