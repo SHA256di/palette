@@ -104,8 +104,12 @@ export default function AestheticImages({ vibe }: AestheticImagesProps) {
                   />
                   
                   {/* Source indicator */}
-                  <div className="absolute top-2 right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded">
-                    Tumblr
+                  <div className={`absolute top-2 right-2 text-white text-xs px-2 py-1 rounded ${
+                    image.source === 'tumblr' ? 'bg-blue-500' : 
+                    image.source === 'unsplash-fallback' ? 'bg-orange-500' : 'bg-gray-500'
+                  }`}>
+                    {image.source === 'tumblr' ? 'Tumblr' : 
+                     image.source === 'unsplash-fallback' ? 'Unsplash' : 'Unknown'}
                   </div>
                   
                   {/* Processing indicator */}

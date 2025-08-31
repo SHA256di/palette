@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { searchTumblrByTag, getBestTumblrImageUrl, processImageForTransparency } from '@/lib/tumblr'
+import { searchTumblrByTag, searchTumblrByTaggedEndpoint, getBestTumblrImageUrl, processImageForTransparency } from '@/lib/tumblr'
 
 export async function POST(request: NextRequest) {
   try {
@@ -9,7 +9,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Vibe parameter is required' }, { status: 400 })
     }
 
-    const posts = await searchTumblrByTag(vibe, limit)
+    // Get Tumblr posts using direct /tagged endpoint
+    const posts = await searchTumblrByTaggedEndpoint(vibe, limit)
     
     // Process Tumblr posts into image format
     const processedImages = await Promise.all(
