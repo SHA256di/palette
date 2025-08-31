@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import FilmReferences from '../components/FilmReferences'
+import MusicPlaylist from '../components/MusicPlaylist'
 
 export default function Home() {
   const [vibe, setVibe] = useState('')
@@ -119,12 +120,7 @@ export default function Home() {
         {generatedBoard && vibe && (
           <div className="space-y-8">
             <div className="bg-white rounded-xl shadow-lg p-6">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                Music & Playlist for "{vibe}"
-              </h3>
-              <p className="text-gray-600">
-                Coming soon: Spotify integration for curated playlists based on your vibe
-              </p>
+              <MusicPlaylist vibe={vibe} />
             </div>
             
             <FilmReferences vibe={vibe} />
