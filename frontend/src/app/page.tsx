@@ -4,6 +4,8 @@ import { useState } from 'react'
 import FilmReferences from '../components/FilmReferences'
 import MusicPlaylist from '../components/MusicPlaylist'
 import AlbumCovers from '../components/AlbumCovers'
+import AestheticImages from '../components/AestheticImages'
+import MoodboardCollector from '../components/MoodboardCollector'
 
 export default function Home() {
   const [vibe, setVibe] = useState('')
@@ -131,13 +133,10 @@ export default function Home() {
             </div>
 
             <div className="bg-white rounded-xl shadow-lg p-6">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                Moodboard & Visuals
-              </h3>
-              <p className="text-gray-600">
-                Coming soon: Unsplash & Tumblr integration for aesthetic imagery
-              </p>
+              <AestheticImages vibe={vibe} />
             </div>
+
+            <MoodboardCollector vibe={vibe} />
 
             <div className="bg-white rounded-xl shadow-lg p-6">
               <h3 className="text-xl font-semibold text-gray-900 mb-4">
