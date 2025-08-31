@@ -16,7 +16,13 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'images.unsplash.com',
+        hostname: '*.media.tumblr.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '64.media.tumblr.com',
         port: '',
         pathname: '/**',
       },
