@@ -1,4 +1,4 @@
-const TUMBLR_API_KEY = process.env.TUMBLR_API_KEY
+const TUMBLR_API_KEY = process.env.TUMBLR_CONSUMER_KEY
 const TUMBLR_API_BASE = 'https://api.tumblr.com/v2'
 
 interface TumblrPhoto {
@@ -155,7 +155,7 @@ export async function searchAestheticBlogs(vibe: string, limit: number = 12): Pr
 // Search Tumblr posts by tag with enhanced filtering
 export async function searchTumblrByTag(vibe: string, limit: number = 12): Promise<TumblrPost[]> {
   if (!TUMBLR_API_KEY) {
-    console.error('Tumblr API key not found')
+    console.error('Tumblr Consumer Key not found')
     return []
   }
 
