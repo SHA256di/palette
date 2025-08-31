@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import FilmReferences from '../components/FilmReferences'
 import MusicPlaylist from '../components/MusicPlaylist'
+import AlbumCovers from '../components/AlbumCovers'
 
 export default function Home() {
   const [vibe, setVibe] = useState('')
@@ -124,6 +125,10 @@ export default function Home() {
             </div>
             
             <FilmReferences vibe={vibe} />
+
+            <div className="bg-white rounded-xl shadow-lg p-6">
+              <AlbumCovers vibe={vibe} />
+            </div>
 
             <div className="bg-white rounded-xl shadow-lg p-6">
               <h3 className="text-xl font-semibold text-gray-900 mb-4">
