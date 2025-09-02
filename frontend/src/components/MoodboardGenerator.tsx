@@ -2,54 +2,91 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { generateMoodboardLayout, exportMoodboardAsImage, type MoodboardLayout } from '@/lib/moodboard'
+import WishlistLayout from './WishlistLayout'
 
 interface MoodboardGeneratorProps {
   vibe: string
   films: any[]
   albums: any[]
   aestheticImages: any[]
+  quotes: any[]
+  originalImage?: string | null
+  originalImageName?: string
 }
 
-export default function MoodboardGenerator({ vibe, films, albums, aestheticImages }: MoodboardGeneratorProps) {
+export default function MoodboardGenerator({ vibe, films, albums, aestheticImages, quotes, originalImage, originalImageName }: MoodboardGeneratorProps) {
+  console.log('🎨 MoodboardGenerator rendered with:', {
+    vibe,
+    films: films.length,
+    albums: albums.length, 
+    aestheticImages: aestheticImages.length,
+    quotes: quotes.length,
+    originalImage: !!originalImage
+  })
+  
+  console.log('🎨 MoodboardGenerator content details:', {
+    films: films.map(f => f.title || f.name || 'untitled'),
+    albums: albums.map(a => a.name || 'untitled'),  
+    aestheticImages: aestheticImages.slice(0,3).map(i => i.url?.substring(0,50) || 'no-url')
+  })
+  
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [layout, setLayout] = useState<MoodboardLayout | null>(null)
-  const [layoutStyle, setLayoutStyle] = useState<'grid' | 'organic' | 'scattered'>('organic')
+  const [layoutStyle, setLayoutStyle] = useState<'grid' | 'organic' | 'scattered'>('scattered')
   const [isGenerating, setIsGenerating] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
 
   const generateMoodboard = async () => {
+    console.log('🎨 generateMoodboard called - Films:', films.length, 'Albums:', albums.length, 'Images:', aestheticImages.length, 'OriginalImage:', !!originalImage)
+    
     if (films.length === 0 && albums.length === 0 && aestheticImages.length === 0) {
-      alert('Please generate some content first (films, albums, or images)')
+      console.log('❌ No content available for moodboard')
       return
     }
 
     setIsGenerating(true)
+    console.log('🔄 Starting moodboard generation...')
     
     try {
       const newLayout = generateMoodboardLayout(films, albums, aestheticImages, {
         width: 1200,
         height: 800,
-        style: layoutStyle
+        style: layoutStyle,
+        originalImage: originalImage || undefined,
+        quotes: quotes || []
       })
       
+      console.log('✅ Layout generated with', newLayout.elements.length, 'elements')
       setLayout(newLayout)
+      console.log('🎨 Rendering moodboard to canvas...')
       await renderMoodboard(newLayout)
+      console.log('✅ Moodboard rendered successfully')
     } catch (error) {
-      console.error('Error generating moodboard:', error)
+      console.error('❌ Error generating moodboard:', error)
     } finally {
       setIsGenerating(false)
     }
   }
 
   const renderMoodboard = async (moodboardLayout: MoodboardLayout) => {
+    console.log('🖼️ renderMoodboard called with layout:', { width: moodboardLayout.width, height: moodboardLayout.height, elements: moodboardLayout.elements.length })
+    
     const canvas = canvasRef.current
-    if (!canvas) return
+    if (!canvas) {
+      console.error('❌ Canvas ref is null!')
+      return
+    }
 
     const ctx = canvas.getContext('2d')!
     canvas.width = moodboardLayout.width
     canvas.height = moodboardLayout.height
     
-    // Clear and fill background
+    console.log('📐 Canvas dimensions set:', { width: canvas.width, height: canvas.height, visible: canvas.offsetWidth })
+    
+    // Clear canvas completely first
+    ctx.clearRect(0, 0, moodboardLayout.width, moodboardLayout.height)
+    
+    // Fill background
     ctx.fillStyle = moodboardLayout.backgroundColor
     ctx.fillRect(0, 0, moodboardLayout.width, moodboardLayout.height)
     
@@ -65,39 +102,66 @@ export default function MoodboardGenerator({ vibe, films, albums, aestheticImage
       }
     }
 
-    // Load and draw images
-    const imagePromises = moodboardLayout.elements.map((element) => {
+    // Load and draw images with safety checks
+    const imagePromises = moodboardLayout.elements.map((element, index) => {
       return new Promise<void>((resolve) => {
+        // Safety check: validate image URL
+        if (!element.url || !element.url.startsWith('http')) {
+          console.warn('Invalid image URL skipped:', element.url)
+          resolve()
+          return
+        }
+
         const img = new Image()
         img.crossOrigin = 'anonymous'
         
+        // Set timeout for image loading (5 seconds max)
+        const timeout = setTimeout(() => {
+          console.warn('Image load timeout:', element.url)
+          resolve()
+        }, 5000)
+        
         img.onload = () => {
-          ctx.save()
+          clearTimeout(timeout)
           
-          // Apply opacity
-          ctx.globalAlpha = element.opacity || 1
-          
-          // Apply rotation and positioning
-          ctx.translate(element.x + element.width / 2, element.y + element.height / 2)
-          if (element.rotation) {
-            ctx.rotate(element.rotation * Math.PI / 180)
+          // Safety check: validate image dimensions
+          if (img.width < 50 || img.height < 50) {
+            console.warn('Image too small, skipping:', element.url)
+            resolve()
+            return
+          }
+
+          try {
+            ctx.save()
+            
+            // Apply opacity
+            ctx.globalAlpha = element.opacity || 1
+            
+            // Apply rotation and positioning
+            ctx.translate(element.x + element.width / 2, element.y + element.height / 2)
+            if (element.rotation) {
+              ctx.rotate(element.rotation * Math.PI / 180)
+            }
+            
+            // Draw the image
+            ctx.drawImage(
+              img,
+              -element.width / 2,
+              -element.height / 2,
+              element.width,
+              element.height
+            )
+            
+            ctx.restore()
+          } catch (error) {
+            console.error('Error drawing image:', error, element.url)
           }
           
-          
-          // Draw the image
-          ctx.drawImage(
-            img,
-            -element.width / 2,
-            -element.height / 2,
-            element.width,
-            element.height
-          )
-          
-          ctx.restore()
           resolve()
         }
         
         img.onerror = () => {
+          clearTimeout(timeout)
           console.error('Failed to load image:', element.url)
           resolve()
         }
@@ -152,6 +216,33 @@ export default function MoodboardGenerator({ vibe, films, albums, aestheticImage
     }
   }
 
+  const hasContent = films.length > 0 || albums.length > 0 || aestheticImages.length > 0
+
+  // Listen for generate event from main button
+  useEffect(() => {
+    const handleGenerate = () => {
+      console.log('🎯 Received generate-moodboard event, hasContent:', hasContent)
+      if (hasContent) {
+        console.log('✅ Content available, generating moodboard...')
+        generateMoodboard()
+      } else {
+        console.log('❌ No content available yet')
+      }
+    }
+    
+    window.addEventListener('generate-moodboard', handleGenerate)
+    return () => window.removeEventListener('generate-moodboard', handleGenerate)
+  }, [hasContent])
+
+  // Auto-generate when content becomes available (only once)  
+  useEffect(() => {
+    if (hasContent && !layout && !isGenerating) {
+      console.log('🎯 Content just became available, auto-generating moodboard...')
+      console.log('Films:', films.length, 'Albums:', albums.length, 'Images:', aestheticImages.length)
+      setTimeout(() => generateMoodboard(), 100)
+    }
+  }, [films.length, albums.length, aestheticImages.length])
+
   // Auto-generate when style changes
   useEffect(() => {
     if (layout) {
@@ -159,34 +250,8 @@ export default function MoodboardGenerator({ vibe, films, albums, aestheticImage
     }
   }, [layoutStyle])
 
-  const hasContent = films.length > 0 || albums.length > 0 || aestheticImages.length > 0
-
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-900">Moodboard Generator</h2>
-        
-        <div className="flex items-center space-x-4">
-          <select
-            value={layoutStyle}
-            onChange={(e) => setLayoutStyle(e.target.value as any)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
-          >
-            <option value="organic">Organic</option>
-            <option value="grid">Grid</option>
-            <option value="scattered">Scattered</option>
-          </select>
-          
-          <button
-            onClick={generateMoodboard}
-            disabled={isGenerating || !hasContent}
-            className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isGenerating ? 'Generating...' : 'Generate Moodboard'}
-          </button>
-        </div>
-      </div>
-
       {!hasContent && (
         <div className="p-8 border-2 border-dashed border-gray-300 rounded-lg text-center">
           <p className="text-gray-600 mb-2">No content available for moodboard</p>
@@ -196,16 +261,20 @@ export default function MoodboardGenerator({ vibe, films, albums, aestheticImage
         </div>
       )}
 
-      {hasContent && !layout && (
-        <div className="p-8 border-2 border-dashed border-purple-300 rounded-lg text-center">
-          <p className="text-purple-600 mb-2">Ready to create your moodboard!</p>
-          <p className="text-sm text-gray-600">
-            Available content: {films.length} films, {albums.length} albums, {aestheticImages.length} images
-          </p>
-        </div>
+      {hasContent && (
+        <WishlistLayout 
+          vibe={vibe}
+          originalImage={originalImage}
+          originalImageName={originalImageName}
+          films={films}
+          albums={albums}
+          aestheticImages={aestheticImages}
+          quotes={quotes}
+        />
       )}
 
-      {layout && (
+      {/* Legacy canvas-based moodboard (hidden by default, can be toggled for comparison) */}
+      {layout && false && (
         <div className="space-y-4">
           <div className="flex justify-between items-center">
             <div className="text-sm text-gray-600">
@@ -214,17 +283,11 @@ export default function MoodboardGenerator({ vibe, films, albums, aestheticImage
             
             <div className="flex space-x-2">
               <button
-                onClick={copyToClipboard}
-                className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg"
-              >
-                Copy to Clipboard
-              </button>
-              <button
                 onClick={exportMoodboard}
                 disabled={isExporting}
-                className="px-3 py-1 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+                className="px-3 py-1 text-sm bg-gray-900 text-white rounded-lg hover:bg-gray-800 disabled:opacity-50"
               >
-                {isExporting ? 'Exporting...' : 'Download PNG'}
+                {isExporting ? 'exporting...' : 'download png'}
               </button>
             </div>
           </div>
@@ -233,7 +296,7 @@ export default function MoodboardGenerator({ vibe, films, albums, aestheticImage
             <canvas
               ref={canvasRef}
               className="w-full h-auto max-w-full"
-              style={{ display: 'block' }}
+              style={{ display: 'block', minHeight: '400px', backgroundColor: '#f8f9fa' }}
             />
           </div>
           

@@ -3,7 +3,7 @@ import { generateMoviesForVibe, searchMovies } from '../../../lib/tmdb'
 
 export async function POST(request: NextRequest) {
   try {
-    const { vibe, limit = 8 } = await request.json()
+    const { vibe, limit = 8, apiTags } = await request.json()
 
     if (!vibe) {
       return NextResponse.json(
@@ -12,8 +12,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Generate movies based on the vibe
-    const movies = await generateMoviesForVibe(vibe, limit)
+    console.log(`🎬 Films API called for vibe: ${vibe}`, apiTags ? 'with enhanced mapping' : 'with legacy mapping')
+    console.log('🔍 apiTags received:', JSON.stringify(apiTags, null, 2))
+
+    // Generate movies based on the vibe using enhanced aesthetic analysis if available
+    const movies = await generateMoviesForVibe(vibe, limit, apiTags)
 
     if (movies.length === 0) {
       return NextResponse.json(

@@ -1,3 +1,5 @@
+import { filterNSFWContent, filterLowQuality } from './aesthetic-mapping'
+
 const SPOTIFY_API_BASE = 'https://api.spotify.com/v1'
 const SPOTIFY_TOKEN_URL = 'https://accounts.spotify.com/api/token'
 
@@ -284,48 +286,170 @@ export function mapVibeToSpotifyParams(vibe: string): {
   return defaultParams
 }
 
-// Generate curated playlist for a vibe using multiple search strategies
-export async function generatePlaylistForVibe(vibe: string, limit: number = 25): Promise<any[]> {
-  const params = mapVibeToSpotifyParams(vibe)
+// Enhanced playlist generation using aesthetic API mappings
+export async function generatePlaylistForVibe(
+  vibe: string, 
+  limit: number = 25, 
+  apiTags?: any // Enhanced API tags from aesthetic analysis
+): Promise<any[]> {
+  console.log(`🎵 Generating playlist for vibe: ${vibe}`)
   
-  // Strategy 1: Get recommendations using mapped parameters
-  const recommendationTracks = await getRecommendations({
-    seed_genres: params.genres,
-    target_energy: params.energy,
-    target_valence: params.valence,
-    target_danceability: params.danceability,
-    limit: Math.ceil(limit * 0.6) // 60% from recommendations
-  })
-
-  // Strategy 2: Search using vibe keywords
-  const vibeSearchTracks = await searchTracks(`${vibe} aesthetic playlist`, Math.ceil(limit * 0.2))
-
-  // Strategy 3: Search using searchTerms (artist/genre specific)
-  const artistSearchTracks: any[] = []
-  for (const searchTerm of params.searchTerms.slice(0, 2)) { // Limit to first 2 search terms
-    const termTracks = await searchTracks(searchTerm, 3)
-    artistSearchTracks.push(...termTracks)
+  // Use enhanced API mappings if available, otherwise fall back to legacy mapping
+  let searchParams
+  if (apiTags?.spotify) {
+    searchParams = {
+      genres: apiTags.spotify.genres.slice(0, 5), // Spotify recommendations API limit
+      searchTerms: [...apiTags.spotify.artists.slice(0, 3), ...apiTags.spotify.search_terms.slice(0, 2)],
+      energy: apiTags.spotify.audio_features.energy,
+      valence: apiTags.spotify.audio_features.valence,
+      danceability: apiTags.spotify.audio_features.danceability,
+      acousticness: apiTags.spotify.audio_features.acousticness
+    }
+    console.log(`✨ Using enhanced Spotify mapping:`, {
+      genres: searchParams.genres,
+      features: {
+        energy: searchParams.energy,
+        valence: searchParams.valence,
+        danceability: searchParams.danceability
+      }
+    })
+  } else {
+    searchParams = mapVibeToSpotifyParams(vibe)
+    console.log(`📝 Using legacy mapping for: ${vibe}`)
+  }
+  
+  const allTracks: any[] = []
+  
+  // Strategy 1: Enhanced recommendations with multiple seed combinations
+  if (searchParams.genres?.length > 0) {
+    // Split genres into combinations of up to 5 (Spotify limit)
+    const genreChunks = []
+    for (let i = 0; i < searchParams.genres.length; i += 3) {
+      genreChunks.push(searchParams.genres.slice(i, i + 3))
+    }
+    
+    for (const genreChunk of genreChunks.slice(0, 2)) {
+      try {
+        const recommendationTracks = await getRecommendations({
+          seed_genres: genreChunk,
+          target_energy: searchParams.energy,
+          target_valence: searchParams.valence,
+          target_danceability: searchParams.danceability,
+          target_acousticness: searchParams.acousticness,
+          limit: Math.ceil(limit * 0.4) // 40% from recommendations
+        })
+        allTracks.push(...recommendationTracks)
+        console.log(`🎯 Got ${recommendationTracks.length} tracks from genres: ${genreChunk.join(', ')}`)
+      } catch (error) {
+        console.log(`⚠️ Recommendations failed for genres: ${genreChunk.join(', ')}`)
+      }
+    }
   }
 
-  // Combine all tracks
-  const allTracks = [...recommendationTracks, ...vibeSearchTracks, ...artistSearchTracks]
+  // Strategy 2: Direct vibe search
+  try {
+    const vibeSearchTracks = await searchTracks(`${vibe} playlist music`, Math.ceil(limit * 0.2))
+    allTracks.push(...vibeSearchTracks)
+    console.log(`🔍 Got ${vibeSearchTracks.length} tracks from vibe search`)
+  } catch (error) {
+    console.log(`⚠️ Vibe search failed for: ${vibe}`)
+  }
+
+  // Strategy 3: Artist and keyword-based searches
+  if (searchParams.searchTerms?.length > 0) {
+    for (const searchTerm of searchParams.searchTerms.slice(0, 4)) {
+      try {
+        const termTracks = await searchTracks(searchTerm, 5)
+        allTracks.push(...termTracks)
+        console.log(`👤 Got ${termTracks.length} tracks from search: ${searchTerm}`)
+      } catch (error) {
+        console.log(`⚠️ Search failed for term: ${searchTerm}`)
+      }
+      
+      // Rate limiting
+      await new Promise(resolve => setTimeout(resolve, 100))
+    }
+  }
+  
+  console.log(`🔍 Found ${allTracks.length} tracks from all search strategies`)
   
   // Deduplicate by track ID
   const uniqueTracks = allTracks.filter((track, index, self) => 
     index === self.findIndex(t => t.id === track.id)
   )
+  
+  console.log(`🔄 After deduplication: ${uniqueTracks.length} unique tracks`)
 
-  // Apply popularity filter (similar to Python implementation)
-  const popularityThreshold = 30
+  // Enhanced quality filtering
   const qualityTracks = uniqueTracks.filter(track => {
-    if (track.popularity && track.popularity < popularityThreshold) {
-      console.log(`Low popularity, skipped: ${track.name} by ${track.artists[0]?.name} (popularity ${track.popularity})`)
+    // Use enhanced quality filter
+    if (!filterLowQuality(track, 'spotify')) {
+      console.log(`❌ Low quality filtered: ${track.name} by ${track.artists?.[0]?.name}`)
       return false
     }
+    
+    // Apply NSFW content filtering
+    const trackText = `${track.name} ${track.artists?.[0]?.name || ''} ${track.album?.name || ''}`.toLowerCase()
+    if (!filterNSFWContent([trackText])) {
+      console.log(`❌ NSFW filtered: ${track.name}`)
+      return false
+    }
+    
+    // Enhanced popularity threshold based on aesthetic
+    const minPopularity = apiTags?.spotify ? 25 : 30 // Slightly lower for niche aesthetics
+    if (track.popularity && track.popularity < minPopularity) {
+      console.log(`❌ Low popularity filtered: ${track.name} (${track.popularity})`)
+      return false
+    }
+    
     return true
   })
 
-  return qualityTracks.slice(0, limit)
+  console.log(`✅ After quality filtering: ${qualityTracks.length} high-quality tracks`)
+
+  // Enhanced sorting with aesthetic-specific scoring
+  qualityTracks.sort((a, b) => {
+    // Multi-factor scoring: popularity (40%), audio features match (30%), artist variety (30%)
+    const getAudioFeatureScore = (track) => {
+      if (!track.audio_features) return 0.5 // Default if no features available
+      
+      const energyMatch = 1 - Math.abs(track.audio_features.energy - searchParams.energy)
+      const valenceMatch = 1 - Math.abs(track.audio_features.valence - searchParams.valence)
+      const danceMatch = 1 - Math.abs(track.audio_features.danceability - searchParams.danceability)
+      
+      return (energyMatch + valenceMatch + danceMatch) / 3
+    }
+    
+    const getArtistVarietyScore = (track, allTracks) => {
+      const artistName = track.artists?.[0]?.name
+      if (!artistName) return 0.5
+      
+      const sameArtistCount = allTracks.filter(t => 
+        t.artists?.[0]?.name === artistName
+      ).length
+      
+      return 1 / Math.sqrt(sameArtistCount) // Prefer artists with fewer tracks
+    }
+    
+    const scoreA = (
+      (a.popularity || 0) / 100 * 0.4 +
+      getAudioFeatureScore(a) * 0.3 +
+      getArtistVarietyScore(a, qualityTracks) * 0.3
+    )
+    
+    const scoreB = (
+      (b.popularity || 0) / 100 * 0.4 +
+      getAudioFeatureScore(b) * 0.3 +
+      getArtistVarietyScore(b, qualityTracks) * 0.3
+    )
+    
+    return scoreB - scoreA
+  })
+
+  const finalResults = qualityTracks.slice(0, limit)
+  console.log(`🎯 Final playlist: ${finalResults.length} curated tracks for ${vibe}`)
+  
+  return finalResults
 }
 
 // Create a Spotify playlist (requires user authentication)
@@ -378,52 +502,142 @@ export async function searchSpotifyTrack(trackName: string, artistName: string):
   }
 }
 
-// Get album covers for moodboard using Last.fm + Spotify hybrid approach
-export async function getAlbumCoversForVibe(vibe: string, limit: number = 4): Promise<any[]> {
-  // Import Last.fm functions (dynamic import to avoid circular dependency)
-  const { getTopTracksForTag, mapVibeToLastFmTags } = await import('./lastfm')
+// Enhanced album covers for moodboard using enhanced aesthetic mappings
+export async function getAlbumCoversForVibe(
+  vibe: string, 
+  limit: number = 4, 
+  apiTags?: any // Enhanced API tags from aesthetic analysis
+): Promise<any[]> {
+  console.log(`💿 Getting album covers for vibe: ${vibe}`)
   
-  const tags = mapVibeToLastFmTags(vibe)
-  const albumCovers: any[] = []
+  let searchStrategies: string[] = []
   
-  // Get tracks from multiple Last.fm tags
-  for (const tag of tags.slice(0, 2)) { // Limit to first 2 tags
+  // Use enhanced mappings if available
+  if (apiTags?.spotify) {
+    searchStrategies = [
+      ...apiTags.spotify.artists.slice(0, 3),
+      ...apiTags.spotify.search_terms.slice(0, 2),
+      vibe
+    ]
+    console.log(`✨ Using enhanced search strategies:`, searchStrategies.slice(0, 3))
+  } else {
+    // Import Last.fm functions for fallback (dynamic import to avoid circular dependency)
     try {
-      const lastFmTracks = await getTopTracksForTag(tag, 5)
-      
-      // For each Last.fm track, find it on Spotify to get album artwork
-      for (const lastFmTrack of lastFmTracks) {
-        if (albumCovers.length >= limit) break
-        
-        const spotifyTrack = await searchSpotifyTrack(lastFmTrack.name, lastFmTrack.artist.name)
-        
-        if (spotifyTrack && spotifyTrack.image && spotifyTrack.popularity >= 30) {
-          // Avoid duplicates by checking if we already have this album
-          const isDuplicate = albumCovers.some(cover => 
-            cover.album === spotifyTrack.album && cover.artist === spotifyTrack.artist
-          )
-          
-          if (!isDuplicate) {
-            albumCovers.push({
-              id: spotifyTrack.id,
-              album: spotifyTrack.album,
-              artist: spotifyTrack.artist,
-              image: spotifyTrack.image,
-              popularity: spotifyTrack.popularity,
-              source: 'lastfm+spotify'
-            })
-          }
-        }
-        
-        // Small delay to avoid rate limiting
-        await new Promise(resolve => setTimeout(resolve, 100))
-      }
-      
-      if (albumCovers.length >= limit) break
+      const { getTopTracksForTag, mapVibeToLastFmTags } = await import('./lastfm')
+      const lastfmTags = mapVibeToLastFmTags(vibe)
+      searchStrategies = [...lastfmTags.slice(0, 2), vibe]
+      console.log(`📝 Using Last.fm tags:`, lastfmTags.slice(0, 2))
     } catch (error) {
-      console.error(`Error processing tag ${tag}:`, error)
+      console.log(`⚠️ Last.fm import failed, using direct search`)
+      searchStrategies = [vibe]
     }
   }
   
-  return albumCovers.slice(0, limit)
+  const albumCovers: any[] = []
+  
+  // Strategy 1: Direct artist/genre searches on Spotify
+  for (const searchTerm of searchStrategies.slice(0, 4)) {
+    try {
+      const tracks = await searchTracks(searchTerm, 8)
+      
+      for (const track of tracks) {
+        if (albumCovers.length >= limit * 2) break // Get more candidates than needed
+        
+        // Quality checks
+        if (!track.album?.images?.[0]?.url) continue
+        if (!filterLowQuality(track, 'spotify')) continue
+        
+        const trackText = `${track.name} ${track.artists?.[0]?.name || ''} ${track.album?.name || ''}`.toLowerCase()
+        if (!filterNSFWContent([trackText])) continue
+        
+        // Avoid album duplicates
+        const isDuplicate = albumCovers.some(cover => 
+          cover.album === track.album?.name && cover.artist === track.artists?.[0]?.name
+        )
+        
+        if (!isDuplicate) {
+          albumCovers.push({
+            id: track.id,
+            album: track.album?.name || 'Unknown Album',
+            artist: track.artists?.[0]?.name || 'Unknown Artist',
+            image: track.album?.images?.[0]?.url,
+            popularity: track.popularity || 0,
+            release_date: track.album?.release_date,
+            total_tracks: track.album?.total_tracks,
+            source: 'spotify-direct'
+          })
+          console.log(`💿 Found album: ${track.album?.name} by ${track.artists?.[0]?.name}`)
+        }
+      }
+      
+      // Rate limiting
+      await new Promise(resolve => setTimeout(resolve, 150))
+    } catch (error) {
+      console.error(`Error searching for ${searchTerm}:`, error)
+    }
+  }
+  
+  console.log(`🔍 Found ${albumCovers.length} album covers from all searches`)
+  
+  // Fallback: Last.fm + Spotify hybrid approach if not enough results
+  if (albumCovers.length < limit) {
+    try {
+      const { getTopTracksForTag, mapVibeToLastFmTags } = await import('./lastfm')
+      const lastfmTags = mapVibeToLastFmTags(vibe)
+      
+      for (const tag of lastfmTags.slice(0, 2)) {
+        if (albumCovers.length >= limit) break
+        
+        try {
+          const lastFmTracks = await getTopTracksForTag(tag, 6)
+          
+          for (const lastFmTrack of lastFmTracks) {
+            if (albumCovers.length >= limit) break
+            
+            const spotifyTrack = await searchSpotifyTrack(lastFmTrack.name, lastFmTrack.artist.name)
+            
+            if (spotifyTrack && spotifyTrack.image) {
+              const trackText = `${spotifyTrack.name} ${spotifyTrack.artist} ${spotifyTrack.album}`.toLowerCase()
+              if (!filterNSFWContent([trackText])) continue
+              
+              const isDuplicate = albumCovers.some(cover => 
+                cover.album === spotifyTrack.album && cover.artist === spotifyTrack.artist
+              )
+              
+              if (!isDuplicate) {
+                albumCovers.push({
+                  id: spotifyTrack.id,
+                  album: spotifyTrack.album,
+                  artist: spotifyTrack.artist,
+                  image: spotifyTrack.image,
+                  popularity: spotifyTrack.popularity,
+                  source: 'lastfm+spotify'
+                })
+                console.log(`💿 Last.fm found: ${spotifyTrack.album} by ${spotifyTrack.artist}`)
+              }
+            }
+            
+            await new Promise(resolve => setTimeout(resolve, 100))
+          }
+        } catch (error) {
+          console.error(`Error processing Last.fm tag ${tag}:`, error)
+        }
+      }
+    } catch (error) {
+      console.log(`⚠️ Last.fm fallback failed:`, error)
+    }
+  }
+  
+  // Sort by popularity and aesthetic relevance
+  albumCovers.sort((a, b) => {
+    // Prefer albums with higher popularity and more recent releases
+    const aScore = (a.popularity || 0) * 0.7 + (a.source === 'spotify-direct' ? 0.3 : 0)
+    const bScore = (b.popularity || 0) * 0.7 + (b.source === 'spotify-direct' ? 0.3 : 0)
+    return bScore - aScore
+  })
+  
+  const finalResults = albumCovers.slice(0, limit)
+  console.log(`🎯 Final album covers: ${finalResults.length} curated covers for ${vibe}`)
+  
+  return finalResults
 }

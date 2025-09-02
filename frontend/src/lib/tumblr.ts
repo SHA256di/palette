@@ -1,5 +1,6 @@
 import OAuth from 'oauth-1.0a'
 import crypto from 'crypto'
+import { filterNSFWContent, filterLowQuality, NSFW_KEYWORDS } from './aesthetic-mapping'
 
 const TUMBLR_CONSUMER_KEY = process.env.TUMBLR_CONSUMER_KEY
 const TUMBLR_CONSUMER_SECRET = process.env.TUMBLR_CONSUMER_SECRET
@@ -62,6 +63,8 @@ interface TumblrPost {
   photos?: TumblrPhoto[]
   caption?: string
   summary?: string
+  body?: string // For text posts
+  title?: string // For text posts
 }
 
 interface TumblrResponse {
@@ -300,19 +303,38 @@ export async function searchAestheticBlogs(vibe: string, limit: number = 12): Pr
 }
 
 // Search Tumblr posts by tag with enhanced filtering
-// Direct /tagged endpoint search - NOW WORKING!
-export async function searchTumblrByTaggedEndpoint(vibe: string, limit: number = 12): Promise<TumblrPost[]> {
+// Enhanced Tumblr search using aesthetic API mappings
+export async function searchTumblrByTaggedEndpoint(
+  vibe: string, 
+  limit: number = 12, 
+  apiTags?: any // Enhanced API tags from aesthetic analysis
+): Promise<TumblrPost[]> {
   if (!TUMBLR_CONSUMER_KEY || !TUMBLR_CONSUMER_SECRET) {
     console.error('Missing Tumblr OAuth credentials')
     return []
   }
 
-  const targetTags = mapVibeToTumblrTags(vibe)
+  console.log(`📱 Enhanced Tumblr search for vibe: ${vibe}`)
+  
+  // Use enhanced API mappings if available, otherwise fall back to legacy mapping
+  let searchTags: string[] = []
+  if (apiTags?.tumblr) {
+    searchTags = [
+      ...apiTags.tumblr.primary_tags.slice(0, 2),
+      ...apiTags.tumblr.secondary_tags.slice(0, 2),
+      vibe // Always include the original vibe as fallback
+    ]
+    console.log(`✨ Using enhanced Tumblr mapping:`, searchTags.slice(0, 3))
+  } else {
+    searchTags = mapVibeToTumblrTags(vibe)
+    console.log(`📝 Using legacy Tumblr mapping:`, searchTags.slice(0, 3))
+  }
+  
   const allPosts: TumblrPost[] = []
   
   try {
     // Use the /tagged endpoint directly with the most relevant tags
-    for (const tag of targetTags.slice(0, 3)) {
+    for (const tag of searchTags.slice(0, 4)) { // Search more tags for better coverage
       const url = `${TUMBLR_API_BASE}/tagged?tag=${encodeURIComponent(tag)}&limit=${Math.min(limit, 20)}`
       const response = await makeAuthenticatedTumblrRequest(url)
 
@@ -327,20 +349,20 @@ export async function searchTumblrByTaggedEndpoint(vibe: string, limit: number =
       console.log(`🎯 /tagged endpoint found ${posts.length} posts for tag "${tag}"`)
 
       // Process all posts that contain images (not just photo type)
-      const postsWithImages = posts.filter((post: any) => {
+      const relevantPosts = posts.filter((post: any) => {
         // Check for photo posts
         if (post.type === 'photo' && post.photos && post.photos.length > 0) return true
         
-        // Check for text posts with embedded images  
-        if (post.type === 'text' && post.body && post.body.includes('<img')) return true
+        // Check for text posts (both with embedded images and quotes)
+        if (post.type === 'text' && post.body) return true
         
         return false
       })
 
-      console.log(`📸 Found ${postsWithImages.length} image posts for tag "${tag}"`)
+      console.log(`📸 Found ${relevantPosts.length} relevant posts (images and text) for tag "${tag}"`)
       
       // Convert to our format
-      for (const post of postsWithImages) {
+      for (const post of relevantPosts) {
         try {
           console.log(`🔍 Processing ${post.type} post from ${post.blog_name}`)
           let photos = []
@@ -423,30 +445,49 @@ export async function searchTumblrByTaggedEndpoint(vibe: string, limit: number =
       await new Promise(resolve => setTimeout(resolve, 200))
     }
 
-    // Apply NSFW and quality filtering
+    // Enhanced NSFW and quality filtering using the new filter functions
     const filteredPosts = allPosts.filter(post => {
-      const photo = post.photos?.[0]
-      if (!photo?.original_size) {
-        console.log(`❌ No original_size for post from ${post.blog_name}`)
+      // Use enhanced quality filter
+      if (!filterLowQuality(post, 'tumblr')) {
+        console.log(`❌ Quality filtered: post from ${post.blog_name}`)
         return false
       }
       
-      if (photo.original_size.width < 300 || photo.original_size.height < 300) {
-        console.log(`❌ Too small: ${photo.original_size.width}x${photo.original_size.height} from ${post.blog_name}`)
+      // Enhanced NSFW filtering
+      const postContent = [
+        ...(post.tags || []),
+        post.summary || '',
+        post.caption || ''
+      ].join(' ')
+      
+      if (!filterNSFWContent(post.tags || [], postContent)) {
+        console.log(`❌ NSFW filtered: post from ${post.blog_name}`)
         return false
       }
       
-      // NSFW filtering
-      const nsfw_keywords = ['nsfw', 'adult', 'nude', 'naked', 'porn', 'sex', 'xxx', 'mature', 'explicit', 'erotic']
-      const postTags = (post.tags || []).map(tag => tag.toLowerCase())
-      const hasNSFW = postTags.some(tag => nsfw_keywords.some(keyword => tag.includes(keyword)))
-      
-      if (hasNSFW) {
-        console.log(`❌ NSFW filtered from ${post.blog_name}`)
-        return false
+      // Additional aesthetic relevance check for enhanced mappings
+      if (apiTags?.tumblr) {
+        const postTags = (post.tags || []).map(tag => tag.toLowerCase())
+        const allRelevantTags = [
+          ...apiTags.tumblr.primary_tags,
+          ...apiTags.tumblr.secondary_tags,
+          ...apiTags.tumblr.related_hashtags,
+          vibe.toLowerCase()
+        ].map(tag => tag.toLowerCase())
+        
+        const hasRelevantTag = postTags.some(tag => 
+          allRelevantTags.some(relevantTag => 
+            tag.includes(relevantTag) || relevantTag.includes(tag)
+          )
+        )
+        
+        if (!hasRelevantTag && postTags.length > 0) {
+          console.log(`❌ Aesthetic relevance filtered: ${post.blog_name} tags don't match ${vibe}`)
+          return false
+        }
       }
       
-      console.log(`✅ Approved post from ${post.blog_name} with ${postTags.length} tags`)
+      console.log(`✅ Approved post from ${post.blog_name} with ${post.tags?.length || 0} tags`)
       return true
     })
 

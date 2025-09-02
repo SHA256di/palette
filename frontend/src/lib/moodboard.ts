@@ -1,6 +1,6 @@
 interface MoodboardElement {
   id: string
-  type: 'film' | 'album' | 'aesthetic'
+  type: 'film' | 'album' | 'aesthetic' | 'original'
   url: string
   x: number
   y: number
@@ -29,21 +29,29 @@ export function generateMoodboardLayout(
     height?: number
     style?: 'grid' | 'organic' | 'scattered'
     padding?: number
+    originalImage?: string
+    quotes?: any[]
   } = {}
 ): MoodboardLayout {
   const {
     width = 1200,
     height = 800,
     style = 'organic',
-    padding = 40
+    padding = 40,
+    originalImage
   } = options
 
   const elements: MoodboardElement[] = []
   const allItems = [
-    ...films.slice(0, 4).map((film, i) => ({ ...film, type: 'film' as const, id: `film-${i}` })),
-    ...albums.slice(0, 2).map((album, i) => ({ ...album, type: 'album' as const, id: `album-${i}` })),
-    ...aestheticImages.slice(0, 6).map((img, i) => ({ ...img, type: 'aesthetic' as const, id: `aesthetic-${i}` }))
+    ...films.slice(0, 3).map((film, i) => ({ ...film, type: 'film' as const, id: `film-${i}` })),
+    ...albums.slice(0, 3).map((album, i) => ({ ...album, type: 'album' as const, id: `album-${i}` })),
+    ...aestheticImages.slice(0, 3).map((img, i) => ({ ...img, type: 'aesthetic' as const, id: `aesthetic-${i}` }))
   ]
+  
+  // Add original image if provided
+  if (originalImage) {
+    allItems.push({ url: originalImage, type: 'original' as const, id: 'original-product' })
+  }
 
   switch (style) {
     case 'grid':
@@ -119,7 +127,7 @@ function generateOrganicLayout(items: any[], options: any): MoodboardLayout {
     if (index >= zones.length) return
     
     const zone = zones[index]
-    const baseSize = item.type === 'film' ? 180 : item.type === 'album' ? 160 : 140
+    const baseSize = item.type === 'film' ? 180 : item.type === 'album' ? 160 : item.type === 'original' ? 200 : 140
     const sizeVariation = 0.7 + Math.random() * 0.6 // 70% to 130% of base size
     
     const elementWidth = baseSize * sizeVariation
@@ -157,16 +165,55 @@ function generateScatteredLayout(items: any[], options: any): MoodboardLayout {
   const { width, height, padding } = options
   const elements: MoodboardElement[] = []
   
+  // Helper function to check if two rectangles overlap
+  function doElementsOverlap(el1: any, el2: any, minDistance = 20): boolean {
+    return !(el1.x + el1.width + minDistance < el2.x || 
+             el2.x + el2.width + minDistance < el1.x || 
+             el1.y + el1.height + minDistance < el2.y || 
+             el2.y + el2.height + minDistance < el1.y)
+  }
+  
+  // Helper function to find a non-overlapping position
+  function findNonOverlappingPosition(elementWidth: number, elementHeight: number, existingElements: MoodboardElement[]): { x: number, y: number } {
+    let attempts = 0
+    const maxAttempts = 100
+    
+    while (attempts < maxAttempts) {
+      const x = padding + Math.random() * (width - elementWidth - padding * 2)
+      const y = padding + Math.random() * (height - elementHeight - padding * 2)
+      
+      const testElement = { x, y, width: elementWidth, height: elementHeight }
+      const hasOverlap = existingElements.some(existing => doElementsOverlap(testElement, existing))
+      
+      if (!hasOverlap) {
+        return { x, y }
+      }
+      attempts++
+    }
+    
+    // Fallback: use grid-like positioning if we can't find a spot
+    const gridIndex = existingElements.length
+    const cols = Math.ceil(Math.sqrt(items.length))
+    const col = gridIndex % cols
+    const row = Math.floor(gridIndex / cols)
+    const cellWidth = (width - padding * 2) / cols
+    const cellHeight = (height - padding * 2) / cols
+    
+    return {
+      x: padding + col * cellWidth + (cellWidth - elementWidth) / 2,
+      y: padding + row * cellHeight + (cellHeight - elementHeight) / 2
+    }
+  }
+  
   items.forEach((item, index) => {
-    const baseSize = item.type === 'film' ? 200 : item.type === 'album' ? 160 : 120
-    const sizeVariation = 0.6 + Math.random() * 0.8
+    const baseSize = item.type === 'film' ? 180 : item.type === 'album' ? 140 : item.type === 'original' ? 200 : 120
+    const sizeVariation = 0.7 + Math.random() * 0.6 // More consistent sizing
     
     const elementWidth = baseSize * sizeVariation
     const elementHeight = baseSize * sizeVariation
     
-    // More random positioning
-    const x = padding + Math.random() * (width - elementWidth - padding * 2)
-    const y = padding + Math.random() * (height - elementHeight - padding * 2)
+    // Find non-overlapping position
+    const { x, y } = findNonOverlappingPosition(elementWidth, elementHeight, elements)
     
     elements.push({
       id: item.id,
@@ -176,8 +223,8 @@ function generateScatteredLayout(items: any[], options: any): MoodboardLayout {
       y,
       width: elementWidth,
       height: elementHeight,
-      rotation: (Math.random() - 0.5) * 40, // -20 to +20 degrees
-      opacity: 0.85 + Math.random() * 0.15,
+      rotation: (Math.random() - 0.5) * 30, // -15 to +15 degrees (less extreme)
+      opacity: 0.9 + Math.random() * 0.1,
       zIndex: index
     })
   })
@@ -196,11 +243,14 @@ function generateScatteredLayout(items: any[], options: any): MoodboardLayout {
 function getImageUrl(item: any): string {
   switch (item.type) {
     case 'film':
-      return item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : ''
+      // Films API returns poster_url (full URL) not poster_path
+      return item.poster_url || (item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : '')
     case 'album':
       return item.image || ''
     case 'aesthetic':
       return item.url || item.urls?.regular || ''
+    case 'original':
+      return item.url || ''
     default:
       return ''
   }

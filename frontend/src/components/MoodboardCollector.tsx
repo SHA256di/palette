@@ -1,16 +1,23 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import MoodboardGenerator from './MoodboardGenerator'
 
 interface MoodboardCollectorProps {
   vibe: string
+  apiTags?: any // Enhanced API tags from aesthetic analysis
+  originalImage?: string | null
+  originalImageName?: string
+  shouldGenerate?: boolean // Trigger from parent
 }
 
-export default function MoodboardCollector({ vibe }: MoodboardCollectorProps) {
+export default function MoodboardCollector({ vibe, apiTags, originalImage, originalImageName, shouldGenerate = false }: MoodboardCollectorProps) {
+  console.log('🎪 MoodboardCollector rendered with vibe:', vibe, 'apiTags:', !!apiTags)
+  
   const [films, setFilms] = useState<any[]>([])
   const [albums, setAlbums] = useState<any[]>([])
   const [aestheticImages, setAestheticImages] = useState<any[]>([])
+  const [quotes, setQuotes] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -19,22 +26,24 @@ export default function MoodboardCollector({ vibe }: MoodboardCollectorProps) {
     setError('')
     
     try {
-      // Fetch all content types in parallel
+      console.log('🔄 Collecting all content with enhanced mappings:', !!apiTags)
+      
+      // Fetch all content types in parallel with enhanced API tags - limit to 3 each for beta
       const [filmsResponse, albumsResponse, imagesResponse] = await Promise.all([
         fetch('/api/films', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ vibe, limit: 6 })
+          body: JSON.stringify({ vibe, limit: 3, apiTags })
         }),
         fetch('/api/album-covers', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ vibe, limit: 4 })
+          body: JSON.stringify({ vibe, limit: 3, apiTags })
         }),
         fetch('/api/aesthetic-images', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ vibe, limit: 8, removeBackground: false })
+          body: JSON.stringify({ vibe, limit: 12, removeBackground: false, apiTags })
         })
       ])
 
@@ -43,127 +52,92 @@ export default function MoodboardCollector({ vibe }: MoodboardCollectorProps) {
         albumsResponse.ok ? albumsResponse.json() : { albumCovers: [] },
         imagesResponse.ok ? imagesResponse.json() : { images: [] }
       ])
+      
+      console.log('🔍 Raw API responses:', {
+        filmsResponse: { ok: filmsResponse.ok, status: filmsResponse.status },
+        albumsResponse: { ok: albumsResponse.ok, status: albumsResponse.status },
+        imagesResponse: { ok: imagesResponse.ok, status: imagesResponse.status }
+      })
+      
+      console.log('🔍 Raw API data:', {
+        filmsData: JSON.stringify(filmsData).substring(0, 200),
+        albumsData: JSON.stringify(albumsData).substring(0, 200),
+        imagesData: JSON.stringify(imagesData).substring(0, 200)
+      })
 
-      setFilms(filmsData.films || [])
-      setAlbums(albumsData.albumCovers || [])
-      setAestheticImages(imagesData.images || [])
+      console.log('📊 Content collected:', {
+        films: filmsData.films?.length || 0,
+        albums: albumsData.albumCovers?.length || 0,
+        images: imagesData.images?.length || 0,
+        quotes: imagesData.quotes?.length || 0
+      })
+
+      const newFilms = filmsData.films || []
+      const newAlbums = albumsData.albumCovers || []
+      const newImages = imagesData.images || []
+      const newQuotes = imagesData.quotes || []
+      
+      console.log('🔄 Setting state with:', { films: newFilms.length, albums: newAlbums.length, images: newImages.length, quotes: newQuotes.length })
+      
+      setFilms(newFilms)
+      setAlbums(newAlbums)
+      setAestheticImages(newImages)
+      setQuotes(newQuotes)
+
+      console.log('✅ State updated with content')
+      console.log(`📊 Final state: Films: ${newFilms.length}, Albums: ${newAlbums.length}, Images: ${newImages.length}, Quotes: ${newQuotes.length}`)
+      console.log(`🎯 Should render MoodboardGenerator: ${newFilms.length > 0 || newAlbums.length > 0 || newImages.length > 0 || newQuotes.length > 0}`)
       
     } catch (err) {
       setError('Failed to collect content for moodboard')
-      console.error('Error collecting content:', err)
+      console.error('❌ Error collecting content:', err)
     } finally {
       setLoading(false)
+      console.log('🔄 Loading finished, state before update:', { films: films.length, albums: albums.length, aestheticImages: aestheticImages.length })
     }
   }
 
   const totalContent = films.length + albums.length + aestheticImages.length
 
+  // Manual collection - triggered by generate button, not auto
+  const [hasCollected, setHasCollected] = React.useState(false)
+  
+  // Trigger collection when shouldGenerate becomes true
+  React.useEffect(() => {
+    if (shouldGenerate && vibe && vibe.trim() && !hasCollected && !loading) {
+      console.log('🔄 Generate triggered - collecting content for vibe:', vibe)
+      setHasCollected(true)
+      collectAllContent()
+    }
+  }, [shouldGenerate, vibe, hasCollected, loading])
+
   return (
-    <div className="space-y-6">
-      {/* Content Collection */}
-      <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-6">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900">Content Collection</h3>
-            <p className="text-sm text-gray-600">
-              Gather all visual elements for your moodboard
-            </p>
-          </div>
-          
-          <button
-            onClick={collectAllContent}
-            disabled={loading}
-            className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? 'Collecting...' : 'Collect All Content'}
-          </button>
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+      {loading && (
+        <div className="flex justify-center mb-6">
+          <div className="text-sm text-gray-500">collecting content...</div>
         </div>
+      )}
 
-        {error && (
-          <div className="p-3 bg-red-50 border border-red-200 rounded-lg mb-4">
-            <p className="text-red-600 text-sm">{error}</p>
-          </div>
-        )}
+      {error && (
+        <div className="p-3 bg-red-50 border border-red-200 rounded-lg mb-4">
+          <p className="text-red-600 text-sm">{error}</p>
+        </div>
+      )}
 
-        {totalContent > 0 && (
-          <div className="grid grid-cols-3 gap-4 text-center">
-            <div className="bg-white rounded-lg p-4">
-              <div className="text-2xl font-bold text-blue-600">{films.length}</div>
-              <div className="text-sm text-gray-600">Films</div>
-            </div>
-            <div className="bg-white rounded-lg p-4">
-              <div className="text-2xl font-bold text-green-600">{albums.length}</div>
-              <div className="text-sm text-gray-600">Albums</div>
-            </div>
-            <div className="bg-white rounded-lg p-4">
-              <div className="text-2xl font-bold text-orange-600">{aestheticImages.length}</div>
-              <div className="text-sm text-gray-600">Images</div>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Moodboard Generator */}
-      <div className="bg-white rounded-lg shadow-lg p-6">
+      {(films.length > 0 || albums.length > 0 || aestheticImages.length > 0 || quotes.length > 0) ? (
         <MoodboardGenerator
           vibe={vibe}
           films={films}
           albums={albums}
           aestheticImages={aestheticImages}
+          quotes={quotes}
+          originalImage={originalImage}
+          originalImageName={originalImageName}
         />
-      </div>
-
-      {/* Content Preview */}
-      {totalContent > 0 && (
-        <div className="bg-gray-50 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            Collected Content Preview
-          </h3>
-          
-          <div className="grid grid-cols-6 md:grid-cols-8 lg:grid-cols-12 gap-2">
-            {films.slice(0, 4).map((film, index) => (
-              <div key={`film-${index}`} className="aspect-square relative">
-                <img
-                  src={film.poster_path ? `https://image.tmdb.org/t/p/w200${film.poster_path}` : ''}
-                  alt={film.title}
-                  className="w-full h-full object-cover rounded border-2 border-blue-200"
-                />
-                <div className="absolute -top-1 -right-1 w-4 h-4 bg-blue-500 rounded-full text-white text-xs flex items-center justify-center">
-                  F
-                </div>
-              </div>
-            ))}
-            
-            {albums.slice(0, 2).map((album, index) => (
-              <div key={`album-${index}`} className="aspect-square relative">
-                <img
-                  src={album.image}
-                  alt={album.album}
-                  className="w-full h-full object-cover rounded border-2 border-green-200"
-                />
-                <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full text-white text-xs flex items-center justify-center">
-                  A
-                </div>
-              </div>
-            ))}
-            
-            {aestheticImages.slice(0, 6).map((image, index) => (
-              <div key={`image-${index}`} className="aspect-square relative">
-                <img
-                  src={image.thumbUrl}
-                  alt={image.alt}
-                  className="w-full h-full object-cover rounded border-2 border-orange-200"
-                />
-                <div className="absolute -top-1 -right-1 w-4 h-4 bg-orange-500 rounded-full text-white text-xs flex items-center justify-center">
-                  I
-                </div>
-              </div>
-            ))}
-          </div>
-          
-          <div className="mt-4 text-sm text-gray-600">
-            F = Films, A = Albums, I = Images • Total: {totalContent} elements
-          </div>
+      ) : !loading && (
+        <div className="text-center text-gray-400 py-8">
+          <p>generating your moodboard...</p>
         </div>
       )}
     </div>

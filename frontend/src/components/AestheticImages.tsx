@@ -42,7 +42,7 @@ export default function AestheticImages({ vibe }: AestheticImagesProps) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ vibe, limit: 12, removeBackground }),
+        body: JSON.stringify({ vibe, limit: 24, removeBackground }),
       })
 
       if (!response.ok) {

@@ -3,13 +3,15 @@ import { getAlbumCoversForVibe } from '@/lib/spotify'
 
 export async function POST(request: NextRequest) {
   try {
-    const { vibe, limit = 4 } = await request.json()
+    const { vibe, limit = 4, apiTags } = await request.json()
 
     if (!vibe) {
       return NextResponse.json({ error: 'Vibe parameter is required' }, { status: 400 })
     }
 
-    const albumCovers = await getAlbumCoversForVibe(vibe, limit)
+    console.log(`💿 Album covers API called for vibe: ${vibe}`, apiTags ? 'with enhanced mapping' : 'with legacy mapping')
+
+    const albumCovers = await getAlbumCoversForVibe(vibe, limit, apiTags)
     
     return NextResponse.json({ 
       albumCovers,
