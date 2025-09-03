@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
   }
 
   // Initialize OAuth
-  const oauth = OAuth({
+  const oauth = new OAuth({
     consumer: {
       key: TUMBLR_CONSUMER_KEY,
       secret: TUMBLR_CONSUMER_SECRET,

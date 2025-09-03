@@ -11,7 +11,7 @@ interface MoodboardElement {
   zIndex?: number
 }
 
-interface MoodboardLayout {
+export interface MoodboardLayout {
   width: number
   height: number
   elements: MoodboardElement[]

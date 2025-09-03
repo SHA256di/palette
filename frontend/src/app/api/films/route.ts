@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { generateMoviesForVibe, searchMovies } from '../../../lib/tmdb'
+import { generateMoviesForVibe, searchMovies } from '@/lib/tmdb'
 
 export async function POST(request: NextRequest) {
   try {

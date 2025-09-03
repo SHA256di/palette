@@ -278,7 +278,7 @@ export default function MoodboardGenerator({ vibe, films, albums, aestheticImage
         <div className="space-y-4">
           <div className="flex justify-between items-center">
             <div className="text-sm text-gray-600">
-              <span className="font-medium">{layout.style}</span> style moodboard with {layout.elements.length} elements
+              <span className="font-medium">{layout?.style}</span> style moodboard with {layout?.elements.length} elements
             </div>
             
             <div className="flex space-x-2">
@@ -302,7 +302,7 @@ export default function MoodboardGenerator({ vibe, films, albums, aestheticImage
           
           <div className="text-center">
             <p className="text-sm text-gray-500">
-              "{vibe}" aesthetic moodboard • {layout.width} × {layout.height}px
+              "{vibe}" aesthetic moodboard • {layout?.width} × {layout?.height}px
             </p>
           </div>
         </div>

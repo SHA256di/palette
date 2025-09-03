@@ -7,7 +7,7 @@ const TUMBLR_CONSUMER_SECRET = process.env.TUMBLR_CONSUMER_SECRET
 const TUMBLR_API_BASE = 'https://api.tumblr.com/v2'
 
 // Initialize OAuth 1.0a
-const oauth = OAuth({
+const oauth = new OAuth({
   consumer: {
     key: TUMBLR_CONSUMER_KEY!,
     secret: TUMBLR_CONSUMER_SECRET!,
@@ -369,7 +369,7 @@ export async function searchTumblrByTaggedEndpoint(
           
           if (post.type === 'photo' && post.photos) {
             // Filter out GIFs from photo posts too
-            photos = post.photos.filter(photo => 
+            photos = post.photos.filter((photo: any) => 
               !photo.original_size?.url?.toLowerCase().includes('.gif')
             )
             console.log(`📷 Photo post has ${photos.length} photos (filtered out GIFs)`)
@@ -420,7 +420,7 @@ export async function searchTumblrByTaggedEndpoint(
           }
 
           if (photos.length > 0) {
-            allPosts.push({
+            allPosts.push({ type: post.type,
               id: post.id_string || post.id.toString(),
               blog_name: post.blog_name,
               post_url: post.post_url,

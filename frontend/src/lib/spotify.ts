@@ -335,7 +335,6 @@ export async function generatePlaylistForVibe(
           target_energy: searchParams.energy,
           target_valence: searchParams.valence,
           target_danceability: searchParams.danceability,
-          target_acousticness: searchParams.acousticness,
           limit: Math.ceil(limit * 0.4) // 40% from recommendations
         })
         allTracks.push(...recommendationTracks)
@@ -410,7 +409,7 @@ export async function generatePlaylistForVibe(
   // Enhanced sorting with aesthetic-specific scoring
   qualityTracks.sort((a, b) => {
     // Multi-factor scoring: popularity (40%), audio features match (30%), artist variety (30%)
-    const getAudioFeatureScore = (track) => {
+    const getAudioFeatureScore = (track: any) => {
       if (!track.audio_features) return 0.5 // Default if no features available
       
       const energyMatch = 1 - Math.abs(track.audio_features.energy - searchParams.energy)
@@ -420,7 +419,7 @@ export async function generatePlaylistForVibe(
       return (energyMatch + valenceMatch + danceMatch) / 3
     }
     
-    const getArtistVarietyScore = (track, allTracks) => {
+    const getArtistVarietyScore = (track: any, allTracks: any[]) => {
       const artistName = track.artists?.[0]?.name
       if (!artistName) return 0.5
       

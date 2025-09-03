@@ -32,9 +32,7 @@ export async function getTopTracksForTag(tag: string, limit: number = 10): Promi
       limit: limit.toString()
     })
 
-    const response = await fetch(`${LASTFM_BASE_URL}?${params.toString()}`, {
-      timeout: 10000
-    })
+    const response = await fetch(`${LASTFM_BASE_URL}?${params.toString()}`)
 
     if (!response.ok) {
       throw new Error(`Last.fm request failed: ${response.status}`)

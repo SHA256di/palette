@@ -46,7 +46,7 @@ export default function PerfumeLayout({
       }
     }
 
-    const typeDescriptors = descriptors[noteType][type as keyof typeof descriptors[noteType]] || descriptors[noteType].visual
+    const typeDescriptors = descriptors[noteType][type as keyof typeof descriptors[typeof noteType]] || descriptors[noteType].visual
     return typeDescriptors[Math.floor(Math.random() * typeDescriptors.length)]
   }
 
