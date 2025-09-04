@@ -1,19 +1,19 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import ProductUpload, { ProductContext } from '../components/ProductUpload'
-import FilmReferences from '../components/FilmReferences'
-import MusicPlaylist from '../components/MusicPlaylist'
-import AlbumCovers from '../components/AlbumCovers'
-import AestheticImages from '../components/AestheticImages'
-import MoodboardCollector from '../components/MoodboardCollector'
+import PerfumeLayout from '../components/PerfumeLayout'
+import WishlistStaticLayout from '../components/WishlistStaticLayout'
+
 
 export default function Home() {
   const [vibe, setVibe] = useState('')
   const [productImage, setProductImage] = useState<string | null>(null)
   const [productContext, setProductContext] = useState<ProductContext | null>(null)
   const [generatedBoard, setGeneratedBoard] = useState(false)
-  const [apiTags, setApiTags] = useState<any>(null) // Store enhanced API tags from CLIP analysis
+  const [selectedLayout, setSelectedLayout] = useState<'perfume' | 'wishlist'>('perfume')
+  const [isClient, setIsClient] = useState(false)
+  // const [apiTags, setApiTags] = useState<any>(null) // Store enhanced API tags from CLIP analysis
 
   const handleGenerateBoard = async () => {
     console.log('🎯 Generate button clicked!')
@@ -42,16 +42,20 @@ export default function Home() {
     }, 500)
   }
 
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
+
   const handleContextSubmit = (context: ProductContext & { apiTags?: any }) => {
     console.log('📝 Context submitted:', context)
     setProductContext(context)
     setVibe(context.brandVibe) // Use brand vibe as the aesthetic search term
     
     // Store API tags from CLIP analysis if available
-    if (context.apiTags) {
-      setApiTags(context.apiTags)
-      console.log('🎯 API tags stored from CLIP analysis:', context.apiTags)
-    }
+    // if (context.apiTags) {
+    //   setApiTags(context.apiTags)
+    //   console.log('🎯 API tags stored from CLIP analysis:', context.apiTags)
+    // }
     
     console.log('🎯 Vibe set to:', context.brandVibe)
   }
@@ -74,6 +78,35 @@ export default function Home() {
             onContextSubmit={handleContextSubmit}
           />
           
+          {/* Layout Selection */}
+          {isClient && (
+            <div className="mt-6 mb-6">
+              <h3 className="text-lg font-light text-gray-700 mb-4 text-center">choose your layout</h3>
+              <div className="flex gap-4 justify-center">
+                <button
+                  onClick={() => setSelectedLayout('perfume')}
+                  className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                    selectedLayout === 'perfume'
+                      ? 'bg-gray-900 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  perfume notes
+                </button>
+                <button
+                  onClick={() => setSelectedLayout('wishlist')}
+                  className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+                    selectedLayout === 'wishlist'
+                      ? 'bg-gray-900 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  wishlist
+                </button>
+              </div>
+            </div>
+          )}
+          
           <div className="mt-6">
             <button 
               data-generate-btn
@@ -86,17 +119,19 @@ export default function Home() {
         </div>
 
         {(() => {
-          console.log('🔍 Render condition check:', { generatedBoard, vibe: !!vibe, shouldRender: generatedBoard && vibe })
-          return generatedBoard && vibe ? (
+          console.log('🔍 Render condition check:', { generatedBoard, productImage: !!productImage, shouldRender: generatedBoard && productImage })
+          return generatedBoard && productImage ? (
             <div className="space-y-6">
-              {/* Moodboard Generator - This contains all the curated content INCLUDING original product */}
-              <MoodboardCollector 
-                vibe={vibe} 
-                apiTags={apiTags}
-                originalImage={productImage}
-                originalImageName={productContext?.productName || 'your product'}
-                shouldGenerate={generatedBoard}
-              />
+              {selectedLayout === 'perfume' ? (
+                <PerfumeLayout 
+                  originalImage={productImage}
+                  originalImageName={productContext?.productName || 'your product'}
+                />
+              ) : (
+                <WishlistStaticLayout 
+                  originalImage={productImage}
+                />
+              )}
             </div>
           ) : null
         })()}

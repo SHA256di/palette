@@ -196,8 +196,8 @@ export default function ProductUpload({ onImageUpload, onContextSubmit }: Produc
         </div>
       )}
 
-      {/* Context Form */}
-      {showContextForm && (
+      {/* Context Form - Commented out for now */}
+      {/* {showContextForm && (
         <form onSubmit={handleContextSubmit} className="space-y-6">
           <div className="bg-gray-50 rounded-lg p-6">
             <h3 className="text-lg font-medium text-gray-900 mb-4">Product Details (Optional)</h3>
@@ -236,7 +236,7 @@ export default function ProductUpload({ onImageUpload, onContextSubmit }: Produc
           </div>
 
         </form>
-      )}
+      )} */}
     </div>
   )
 }

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { searchTumblrByTag, searchTumblrByTaggedEndpoint, getBestTumblrImageUrl, processImageForTransparency } from '@/lib/tumblr'
+import { fetchWishlistPosts, getBestTumblrImageUrl, processImageForTransparency } from '@/lib/tumblr'
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,8 +11,8 @@ export async function POST(request: NextRequest) {
 
     console.log(`📱 Aesthetic images API called for vibe: ${vibe}`, apiTags ? 'with enhanced mapping' : 'with legacy mapping')
 
-    // Get Tumblr posts using enhanced aesthetic analysis if available
-    const posts = await searchTumblrByTaggedEndpoint(vibe, limit, apiTags)
+    // Get Tumblr posts using working method
+    const posts = await fetchWishlistPosts(limit)
     
     // Process Tumblr posts into images and quotes
     const processedItems = await Promise.all(
@@ -79,8 +79,19 @@ export async function POST(request: NextRequest) {
 
     // Filter out null results and separate by type
     const validItems = processedItems.filter(item => item !== null)
-    const images = validItems.filter(item => item.type === 'image')
+    let images = validItems.filter(item => item.type === 'image')
     const quotes = validItems.filter(item => item.type === 'quote')
+
+    // Deduplicate images by URL to prevent repeated images
+    const seenUrls = new Set()
+    images = images.filter(image => {
+      const key = image.originalUrl || image.url
+      if (seenUrls.has(key)) {
+        return false
+      }
+      seenUrls.add(key)
+      return true
+    })
 
     console.log(`📝 Found ${quotes.length} quotes and ${images.length} images for ${vibe}`)
 
