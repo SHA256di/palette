@@ -140,10 +140,10 @@ export default function ProductUpload({ onImageUpload, onContextSubmit }: Produc
               </svg>
             </div>
             <div>
-              <h3 className="text-lg font-medium text-gray-900">Upload your product image</h3>
-              <p className="text-sm text-gray-500 mt-1">
+              <h3 className="text-lg font-medium text-gray-900">Upload a picture to make a moodboard</h3>
+              {/* <p className="text-sm text-gray-500 mt-1">
                 Drag and drop your product photo, logo, or brand asset
-              </p>
+              </p> */}
             </div>
             <div>
               <label className="cursor-pointer">
