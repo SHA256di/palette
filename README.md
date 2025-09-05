@@ -1,132 +1,121 @@
-# palette 🎨 : a creative workflow curator  
+# 🎨 Palette - AI Moodboard Generator
 
-**palette** is an AI-powered web app that helps users turn a vibe, product, or aesthetic into a curated moodboard in seconds.  
+Generate beautiful aesthetic moodboards using AI image analysis and intelligent search.
 
-Instead of manually pulling references from Spotify, TMDb, Discogs, Unsplash, and Tumblr, palette generates a **shareable aesthetic board** that combines playlists, films, album covers, visuals, quotes, and rationale into a single, deck-ready output.  
+## 🏗️ Architecture
 
-The app works in two modes:  
+This is a modern Next.js 14+ application with App Router, featuring:
 
----
+- **Gemini Vision AI** for image analysis and aesthetic classification
+- **Google Custom Search API** for fetching cohesive moodboard images  
+- **5 Curated Aesthetics**: Pink Pilates Princess, Coquette, Clean Girl, Dark Academia, Y2K
+- **WishlistLayout** for clean 2×2 moodboard display
 
-## Structured Workflow  
-Users fill out a clean form with:  
-- A vibe or product name (e.g., *“pink pilates princess”*, *“windsurf startup”*)  
-- Optional brand context (audience, platform, purpose)  
+## 📁 Project Structure
 
-Palette then uses embeddings (CLIP + sentence-transformers) and APIs (Spotify, Last.fm, TMDb, Discogs, Unsplash, Tumblr) to assemble a **cross-media board**.  
+```
+palette/
+├── frontend/                 # Next.js application
+│   ├── src/
+│   │   ├── app/             # App Router pages & API routes
+│   │   │   ├── api/
+│   │   │   │   └── analyze-image/  # Main AI analysis endpoint
+│   │   │   └── page.tsx     # Homepage
+│   │   ├── components/      # React components
+│   │   │   ├── ProductUpload.tsx
+│   │   │   └── WishlistLayout.tsx
+│   │   ├── lib/            # Utilities & integrations
+│   │   │   ├── aesthetics.ts    # 5 curated aesthetics
+│   │   │   ├── gemini.ts        # Gemini Vision API
+│   │   │   └── google-search.ts # Google Images search
+│   │   └── types/          # TypeScript interfaces
+│   ├── public/             # Static assets
+│   ├── .env                # Environment variables
+│   └── package.json        # Dependencies
+├── docs/                   # Project documentation
+│   ├── PRD.md             # Product Requirements
+│   ├── Claude_prompt.md   # AI instructions
+│   └── sprint_schedule.md # Development timeline
+└── README.md              # This file
+```
 
----
+## 🚀 Quick Start
 
-## Creative Assistant  
-A chat-based AI curator lets users free-prompt their vision (e.g., “make me a *girlblogger aesthetic board* around Diet Coke”). The assistant parses the input into structured tags and regenerates a board with refinement loops like:  
-- “Make it darker”  
-- “More Y2K”  
-- “Add Lana Del Rey references”  
+1. **Install dependencies:**
+   ```bash
+   cd frontend
+   npm install
+   ```
 
----
+2. **Set up environment variables:**
+   ```bash
+   # Copy the example and add your API keys
+   cp .env .env.local
+   ```
 
-## Output  
-Each board is **moodboard-first**: a white-background collage layout with:  
-- Spotify embeds + Last.fm tags (music)  
-- Film posters/loglines (TMDb)  
-- Album covers (Discogs)  
-- Aesthetic visuals (Unsplash, Tumblr)  
-- Quotes or phrases pulled from APIs or LLMs  
-- Optional product placement (logos, new products contextualized among familiar items)  
+3. **Get API Keys:**
+   - **Gemini API**: Get from Google AI Studio
+   - **Google Search API**: Get from Google Cloud Console
+   - **Custom Search Engine**: Create at Google Custom Search
 
-Boards can be:  
-- Exported as PDF/PNG slides  
-- Shared via link  
-- Iterated with AI  
+4. **Update .env.local:**
+   ```bash
+   GEMINI_API_KEY=your-gemini-key-here
+   GOOGLE_SEARCH_API_KEY=your-google-search-key
+   GOOGLE_SEARCH_ENGINE_ID=your-search-engine-id
+   ```
 
----
+5. **Start development server:**
+   ```bash
+   npm run dev
+   ```
 
-## Target Users  
-- **Brand strategists & marketers** → vibe packs for campaign decks & ad mockups  
-- **Creative directors & designers** → quick inspo boards for set/campaign design  
-- **Content creators** → aesthetic boards for TikTok/Instagram  
-- **Gen Z creatives & students** → exploring and remixing aesthetics  
-- **B2B marketers** → translating new products into familiar cultural contexts  
+## 🎯 How It Works
 
----
+### User Workflow
+1. **Upload** a product image
+2. **Select** an aesthetic (or let AI auto-detect)
+3. **Generate** moodboard
+4. **View** your personalized 2×2 aesthetic grid
 
-## Tech Stack  
+### Behind the Scenes
+1. **Gemini Vision** analyzes the uploaded image
+2. **AI classifies** the aesthetic and generates keywords
+3. **Google Search** finds 8-12 matching images
+4. **WishlistLayout** displays the cohesive moodboard
 
-**Frontend**  
-- Next.js (App Router) + Tailwind CSS  
-- Konva.js / Fabric.js for collage layout rendering  
+## 🎨 Supported Aesthetics
 
-**Backend / API**  
-- Next.js API routes or small FastAPI microservice for embeddings  
+1. **Pink Pilates Princess** - Pastel activewear, wellness, soft gym vibes
+2. **Coquette** - Lace, bows, pearls, romantic vintage mood  
+3. **Clean Girl** - Minimalism, gold hoops, effortless style
+4. **Dark Academia** - Tweed blazers, books, scholarly vibes
+5. **Y2K** - Bold colors, rhinestones, early 2000s energy
 
-**Integrations (MVP)**  
-- Spotify API (music search + playlists)  
-- Last.fm API (tags + vibe mapping)  
-- TMDb API (films, metadata, posters)  
-- Discogs API (album covers)  
-- Unsplash API (general visuals)  
-- Tumblr API (aesthetic/quote content)  
+## 🛠️ Tech Stack
 
-**Future Integrations**  
-- Pinterest/Instagram login → vibe boards from saved pins  
-- Spotify login → playlist-based personalization  
-- Brand guideline upload (PDF/RAG) → color/font alignment  
+- **Frontend**: Next.js 14, React 18, TypeScript, Tailwind CSS
+- **AI**: Google Gemini Vision API
+- **Search**: Google Custom Search API
+- **Deployment**: Vercel-ready
 
-**AI Models**  
-- CLIP (Hugging Face) for embeddings & vibe matching  
-- Sentence-Transformers for text similarity  
-- Claude / GPT-4 / LLaMA for rationale, hashtags, quotes, and refinements  
-- (Stretch) Stable Diffusion for AI-generated visuals  
-- (Stretch) LoRA adapters for style-specific boards  
+## 📝 Development
 
-**Database / Storage**  
-- Supabase (PostgreSQL for users, boards, embeddings)  
-- Cloudinary (for storing images + exported boards)  
+- **Code Style**: ESLint + Prettier configured
+- **Type Safety**: Full TypeScript coverage
+- **File Structure**: Industry-standard Next.js App Router
+- **Component Architecture**: Clean, reusable React components
 
-**Analytics / Evals**  
-- PostHog for event tracking  
-- Eval panel (tag overlap, vibe alignment, time saved)  
+## 🚢 Deployment
 
-**Deployment**  
-- Vercel (frontend + serverless)  
-- Hugging Face Spaces (model hosting, optional)  
+This project is configured for easy deployment on Vercel:
 
----
+```bash
+npm run build
+```
 
-## Workflow  
+Set your environment variables in your deployment platform.
 
-### Structured Mode (Form)  
-1. User enters vibe/product + context.  
-2. Inputs normalized with LLM (deduped, cleaned).  
-3. Pipeline retrieves candidates from Spotify, Last.fm, TMDb, Discogs, Unsplash, Tumblr.  
-4. Elements ranked + assembled into collage layout template (images, text, album covers, quotes).  
-5. User exports/share board.  
+## 📄 License
 
-### Assistant Mode (Chat)  
-1. User prompts aesthetic (“NYC finance starter pack with iced lattes”).  
-2. AI generates structured tags (brands, genres, phrases).  
-3. Same retrieval pipeline runs → outputs board.  
-4. User refines via conversation.  
-
----
-
-## Core Features  
-- **Moodboard-first output**: playlist, films, album covers, images, quotes, rationale.  
-- **Export tools**: PDF, PNG, shareable links.  
-- **Creative Assistant**: chat-based refinement.  
-- **Product contextualization**: place new products alongside familiar aesthetics.  
-
----
-
-## Stretch Features  
-- **LoRA adapters**: fine-tuned lightweight models for styles (*dark academia*, *girlblogger*, *Y2K*, *film noir*).  
-- **Brand guideline upload (RAG)**: PDF ingestion to enforce fonts, colors, tone.  
-- **Campaign analytics**: predict engagement by vibe/hashtags.  
-- **Collaborative boards**: multi-user edits + commenting.  
-
----
-
-## Future Enhancements  
-- Personalized vibe packs via Spotify/Pinterest login.  
-- Advanced eval dashboard (time saved, cross-modal overlap).  
-- LoRA visual style library (toggle: dark academia, tech bro, streetwear, etc.).  
+MIT License - see LICENSE file for details.  

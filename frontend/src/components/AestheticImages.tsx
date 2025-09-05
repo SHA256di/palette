@@ -30,19 +30,19 @@ export default function AestheticImages({ vibe }: AestheticImagesProps) {
   const [images, setImages] = useState<AestheticImage[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [removeBackground, setRemoveBackground] = useState(false)
+  // Background removal not available with Unsplash
 
   const generateImages = async () => {
     setLoading(true)
     setError('')
     
     try {
-      const response = await fetch('/api/aesthetic-images', {
+      const response = await fetch('/api/unsplash', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ vibe, limit: 24, removeBackground }),
+        body: JSON.stringify({ query: vibe, limit: 24 }),
       })
 
       if (!response.ok) {
@@ -64,21 +64,12 @@ export default function AestheticImages({ vibe }: AestheticImagesProps) {
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-gray-900">Aesthetic Images</h2>
         <div className="flex items-center space-x-4">
-          <label className="flex items-center space-x-2 text-sm">
-            <input
-              type="checkbox"
-              checked={removeBackground}
-              onChange={(e) => setRemoveBackground(e.target.checked)}
-              className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
-            />
-            <span>Remove Background</span>
-          </label>
           <button
             onClick={generateImages}
             disabled={loading}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? 'Generating...' : 'Get from Tumblr'}
+            {loading ? 'Generating...' : 'Get from Unsplash'}
           </button>
         </div>
       </div>
@@ -104,12 +95,8 @@ export default function AestheticImages({ vibe }: AestheticImagesProps) {
                   />
                   
                   {/* Source indicator */}
-                  <div className={`absolute top-2 right-2 text-white text-xs px-2 py-1 rounded ${
-                    image.source === 'tumblr' ? 'bg-blue-500' : 
-                    image.source === 'unsplash-fallback' ? 'bg-orange-500' : 'bg-gray-500'
-                  }`}>
-                    {image.source === 'tumblr' ? 'Tumblr' : 
-                     image.source === 'unsplash-fallback' ? 'Unsplash' : 'Unknown'}
+                  <div className="absolute top-2 right-2 bg-orange-500 text-white text-xs px-2 py-1 rounded">
+                    Unsplash
                   </div>
                   
                   {/* Processing indicator */}
@@ -130,7 +117,7 @@ export default function AestheticImages({ vibe }: AestheticImagesProps) {
                 {/* Hover overlay */}
                 <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col justify-end p-3">
                   <div className="text-white">
-                    <p className="text-xs font-medium">{image.blogger?.name || 'Tumblr User'}</p>
+                    <p className="text-xs font-medium">{image.blogger?.name || 'Photographer'}</p>
                     <p className="text-xs opacity-75">
                       {image.tags && image.tags.length > 1 && `#${image.tags.slice(0, 2).join(' #')}`}
                     </p>
@@ -145,7 +132,7 @@ export default function AestheticImages({ vibe }: AestheticImagesProps) {
                         className="text-xs underline hover:text-blue-300"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        Tumblr
+                        Unsplash
                       </a>
                     </div>
                   </div>
@@ -157,19 +144,18 @@ export default function AestheticImages({ vibe }: AestheticImagesProps) {
           <div className="text-center pt-4">
             <p className="text-sm text-gray-500">
               {images.length} aesthetic images for "{vibe}" vibe
-              {removeBackground && ' with background processing'}
             </p>
             <p className="text-xs text-gray-400 mt-1">
-              Authentic aesthetic content from{' '}
+              Beautiful photos from{' '}
               <a 
-                href="https://tumblr.com"
+                href="https://unsplash.com"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="underline hover:text-blue-600"
               >
-                Tumblr
+                Unsplash
               </a>{' '}
-              blogs and communities
+              photographers
             </p>
           </div>
         </div>

@@ -43,6 +43,9 @@ pnpm-debug.log*
 .vscode/
 .idea/
 
+node_modules/
+.next/
+dist/
+.env
 
-palette-backup/
 .claude/
